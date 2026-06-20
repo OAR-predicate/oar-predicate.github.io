@@ -1,11 +1,385 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Transformation-Aware Decoupling for Viewpoint-Robust 3D Scene Graph Generation." />
+  <meta
+    name="description"
+    content="Transformation-Aware Decoupling for Viewpoint-Robust 3D Scene Graph Generation."
+  />
   <title>TAD: Not All Relations Rotate Alike</title>
+
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Extra styles for the new project-page sections.
+       These are intentionally kept here so that index.html can be replaced directly. -->
+
+  <style>
+    :root {
+      --tad-ink: #20252b;
+      --tad-muted: #667085;
+      --tad-line: #e7eaee;
+      --tad-bg: #ffffff;
+      --tad-soft-bg: #f7f8fa;
+      --tad-invariant: #1f9d70;
+      --tad-directional: #e97842;
+      --tad-blue: #4b76d1;
+      --tad-shadow: 0 12px 30px rgba(31, 38, 48, 0.07);
+    }
+
+    .project-note {
+      max-width: 900px;
+      margin: 0 auto;
+      color: var(--tad-muted);
+      font-size: 0.96rem;
+      line-height: 1.7;
+    }
+
+    .link-pill.is-disabled {
+      cursor: default;
+      opacity: 0.62;
+      pointer-events: none;
+    }
+
+    .key-idea-section {
+      padding-top: 76px;
+      padding-bottom: 76px;
+    }
+
+    .relation-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+      max-width: 980px;
+      margin: 34px auto 0;
+    }
+
+    .relation-card {
+      min-height: 260px;
+      padding: 28px;
+      border: 1px solid var(--tad-line);
+      border-radius: 18px;
+      background: var(--tad-bg);
+      box-shadow: var(--tad-shadow);
+    }
+
+    .relation-card.invariant-card {
+      border-top: 5px solid var(--tad-invariant);
+    }
+
+    .relation-card.directional-card {
+      border-top: 5px solid var(--tad-directional);
+    }
+
+    .relation-label {
+      margin: 0 0 10px;
+      color: var(--tad-muted);
+      font-size: 0.76rem;
+      font-weight: 750;
+      letter-spacing: 0.12em;
+    }
+
+    .relation-card h3 {
+      margin: 0;
+      color: var(--tad-ink);
+      font-size: 1.35rem;
+      line-height: 1.32;
+    }
+
+    .relation-card > p:last-child {
+      margin: 18px 0 0;
+      color: var(--tad-muted);
+      font-size: 0.95rem;
+      line-height: 1.72;
+    }
+
+    .relation-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .relation-tags span {
+      padding: 6px 11px;
+      border: 1px solid var(--tad-line);
+      border-radius: 999px;
+      background: #fafbfc;
+      color: var(--tad-ink);
+      font-size: 0.84rem;
+      font-weight: 650;
+    }
+
+    .invariant-card .relation-tags span {
+      border-color: rgba(31, 157, 112, 0.35);
+    }
+
+    .directional-card .relation-tags span {
+      border-color: rgba(233, 120, 66, 0.38);
+    }
+
+    .transformation-strip {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 16px;
+      max-width: 820px;
+      margin: 34px auto 0;
+      padding: 22px;
+      border: 1px solid var(--tad-line);
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 8px 20px rgba(31, 38, 48, 0.04);
+    }
+
+    .transformation-example {
+      padding: 16px;
+      border-radius: 12px;
+      background: var(--tad-soft-bg);
+      text-align: center;
+    }
+
+    .transformation-example p {
+      margin: 0;
+      color: var(--tad-muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .transformation-example strong {
+      display: block;
+      margin-top: 7px;
+      color: var(--tad-ink);
+      font-size: 1.18rem;
+    }
+
+    .transform-arrow {
+      color: var(--tad-directional);
+      font-size: 1.8rem;
+      font-weight: 800;
+    }
+
+    .demo-card h3 {
+      margin-bottom: 10px;
+    }
+
+    .demo-card p {
+      color: var(--tad-muted);
+      line-height: 1.72;
+    }
+
+    .results-summary {
+      max-width: 1020px;
+      margin: 32px auto 0;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .metric-card {
+      padding: 22px 18px;
+      border: 1px solid var(--tad-line);
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: var(--tad-shadow);
+      text-align: center;
+    }
+
+    .metric-label {
+      margin: 0;
+      color: var(--tad-muted);
+      font-size: 0.83rem;
+      font-weight: 750;
+      letter-spacing: 0.03em;
+    }
+
+    .metric-value {
+      margin: 9px 0 3px;
+      color: var(--tad-ink);
+      font-size: clamp(1.45rem, 2.7vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .metric-delta {
+      margin: 0;
+      color: var(--tad-invariant);
+      font-size: 0.9rem;
+      font-weight: 750;
+    }
+
+    .results-table-wrap {
+      overflow-x: auto;
+      margin-top: 20px;
+      border: 1px solid var(--tad-line);
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 8px 22px rgba(31, 38, 48, 0.05);
+    }
+
+    .results-table {
+      width: 100%;
+      min-width: 690px;
+      border-collapse: collapse;
+      text-align: center;
+      font-size: 0.93rem;
+    }
+
+    .results-table th,
+    .results-table td {
+      padding: 15px 14px;
+      border-bottom: 1px solid var(--tad-line);
+    }
+
+    .results-table th {
+      color: var(--tad-muted);
+      background: #fafbfc;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .results-table td:first-child,
+    .results-table th:first-child {
+      padding-left: 22px;
+      text-align: left;
+    }
+
+    .results-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .results-table tr.highlight-row {
+      background: rgba(31, 157, 112, 0.08);
+    }
+
+    .results-table .best {
+      color: var(--tad-invariant);
+      font-weight: 800;
+    }
+
+    .results-table .drop {
+      color: #b42318;
+      font-weight: 700;
+    }
+
+    .results-table .small-drop {
+      color: var(--tad-invariant);
+      font-weight: 800;
+    }
+
+    .protocol-box,
+    .repro-box,
+    .limitations-box {
+      max-width: 980px;
+      margin: 30px auto 0;
+      padding: 24px 26px;
+      border: 1px solid var(--tad-line);
+      border-left: 5px solid var(--tad-blue);
+      border-radius: 15px;
+      background: #ffffff;
+      box-shadow: 0 8px 22px rgba(31, 38, 48, 0.05);
+    }
+
+    .repro-box {
+      border-left-color: var(--tad-invariant);
+    }
+
+    .limitations-box {
+      border-left-color: var(--tad-directional);
+    }
+
+    .protocol-box h3,
+    .repro-box h3,
+    .limitations-box h3 {
+      margin: 0 0 10px;
+      color: var(--tad-ink);
+      font-size: 1.1rem;
+    }
+
+    .protocol-box p,
+    .repro-box p,
+    .limitations-box p {
+      margin: 8px 0 0;
+      color: var(--tad-muted);
+      font-size: 0.95rem;
+      line-height: 1.72;
+    }
+
+    .repro-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .repro-item {
+      padding: 15px;
+      border-radius: 12px;
+      background: var(--tad-soft-bg);
+    }
+
+    .repro-item span {
+      display: block;
+      color: var(--tad-muted);
+      font-size: 0.76rem;
+      font-weight: 750;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .repro-item strong {
+      display: block;
+      margin-top: 7px;
+      color: var(--tad-ink);
+      font-size: 0.98rem;
+      line-height: 1.45;
+    }
+
+    .citation-status {
+      max-width: 820px;
+      margin: 0 auto 18px;
+      color: var(--tad-muted);
+      font-size: 0.94rem;
+      line-height: 1.65;
+      text-align: center;
+    }
+
+    @media (max-width: 760px) {
+      .relation-grid,
+      .metric-grid,
+      .repro-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .relation-card {
+        min-height: auto;
+      }
+
+      .transformation-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .transform-arrow {
+        transform: rotate(90deg);
+      }
+
+      .protocol-box,
+      .repro-box,
+      .limitations-box {
+        padding: 20px;
+      }
+    }
+  </style>
+
 </head>
 
 <body>
@@ -19,157 +393,434 @@
           Viewpoint-Robust 3D Scene Graph Generation
         </h1>
 
-        <!-- Replace names, links, and superscripts after anonymous review. -->
-        <p class="authors">
-          <a href="#">Anonymous Author 1</a><sup>1</sup>,
-          <a href="#">Anonymous Author 2</a><sup>1</sup>,
-          <a href="#">Anonymous Author 3</a><sup>2</sup>,
-          <a href="#">Anonymous Author 4</a><sup>1,2</sup>
-        </p>
+```
+    <!-- Keep anonymous until the review decision is public. -->
+    <p class="authors">Anonymous Submission</p>
 
-        <p class="affiliations">
-          <sup>1</sup>Anonymous Institution &nbsp;&nbsp;
-          <sup>2</sup>Anonymous Institution
-        </p>
+    <p class="affiliations">
+      Submitted to AAAI 2026
+    </p>
 
-        <div class="hero-links">
-          <a class="link-pill" href="assets/pdf/paper.pdf">📄 Paper</a>
-          <a class="link-pill" href="https://github.com/YOUR-ACCOUNT/YOUR-REPO">⌘ Code</a>
-          <a class="link-pill" href="#">↗ arXiv</a>
+    <div class="hero-links">
+      <a
+        class="link-pill"
+        href="assets/pdf/paper.pdf"
+        target="_blank"
+        rel="noopener"
+      >
+        📄 Paper
+      </a>
+
+      <span class="link-pill is-disabled" aria-disabled="true">
+        ⌘ Code coming soon
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- FULL-WIDTH TEASER VIDEO -->
+<section class="teaser-section">
+  <div class="wide-container">
+    <video
+      class="teaser-video"
+      autoplay
+      muted
+      loop
+      playsinline
+      controls
+      preload="metadata"
+      poster="assets/figures/hero-poster.jpg"
+    >
+      <source src="assets/demos/hero.mp4" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+
+    <p class="media-caption">
+      Same physical scene under different yaw viewpoints:
+      <span class="invariant-text">yaw-invariant predicates remain stable</span>,
+      while
+      <span class="directional-text">
+        directional predicates transform with the observation frame
+      </span>.
+    </p>
+  </div>
+</section>
+
+<!-- KEY IDEA -->
+<section class="content-section key-idea-section" id="key-idea">
+  <div class="container">
+    <div class="section-title">
+      <p class="kicker">KEY IDEA</p>
+      <h2>What changes, and what stays stable?</h2>
+      <p>
+        Under yaw rotations, relations do not share one universal transformation rule.
+        Directional predicates should follow the observation frame, while most physical,
+        support, and semantic predicates should remain stable.
+      </p>
+    </div>
+
+    <div class="relation-grid">
+      <article class="relation-card invariant-card">
+        <p class="relation-label">YAW-INVARIANT RELATIONS</p>
+        <h3>Stay stable across viewpoints</h3>
+
+        <div class="relation-tags">
+          <span>standing on</span>
+          <span>attached to</span>
+          <span>close by</span>
+          <span>supported by</span>
         </div>
-      </div>
-    </section>
 
-    <!-- FULL-WIDTH TEASER VIDEO: assets/demos/hero.mp4 -->
-    <section class="teaser-section">
-      <div class="wide-container">
-        <video class="teaser-video" autoplay muted loop playsinline controls preload="metadata"
-               poster="assets/figures/hero-poster.jpg">
-          <source src="assets/demos/hero.mp4" type="video/mp4" />
+        <p>
+          These predicates describe contact, support, distance, or semantic structure.
+          Their meaning should not change merely because the camera rotates around
+          the vertical axis.
+        </p>
+      </article>
+
+      <article class="relation-card directional-card">
+        <p class="relation-label">DIRECTIONAL RELATIONS</p>
+        <h3>Transform with the observation frame</h3>
+
+        <div class="relation-tags">
+          <span>left</span>
+          <span>right</span>
+          <span>front</span>
+          <span>behind</span>
+        </div>
+
+        <p>
+          A yaw rotation changes the horizontal observation axes. Directional predicates
+          should therefore transform predictably instead of remaining fixed in a shared
+          relation representation.
+        </p>
+      </article>
+    </div>
+
+    <div class="transformation-strip" aria-label="Directional transformation example">
+      <div class="transformation-example">
+        <p>0° viewpoint</p>
+        <strong>table is left of chair</strong>
+      </div>
+
+      <div class="transform-arrow" aria-hidden="true">→</div>
+
+      <div class="transformation-example">
+        <p>90° viewpoint</p>
+        <strong>table is front of chair</strong>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MOTIVATION -->
+<section class="content-section" id="motivation">
+  <div class="container">
+    <div class="section-title">
+      <p class="kicker">MOTIVATION</p>
+      <h2>Not all relations rotate alike.</h2>
+      <p>
+        Conventional 3D scene graph models learn all predicates in a single relation space.
+        This entangles two conflicting requirements: stable prediction for yaw-invariant
+        predicates and viewpoint-following prediction for directional predicates.
+      </p>
+    </div>
+
+    <figure class="long-figure">
+      <img
+        src="assets/figures/motivation-long.png"
+        alt="Motivation illustration showing invariant and directional predicates under yaw rotations"
+        loading="lazy"
+      />
+    </figure>
+  </div>
+</section>
+
+<!-- METHOD -->
+<section class="content-section section-gray" id="method">
+  <div class="container">
+    <div class="section-title">
+      <p class="kicker">METHOD</p>
+      <h2>Transformation-Aware Decoupling.</h2>
+      <p>
+        TAD combines a viewpoint-stable object encoder with two non-shared relation branches:
+        one for yaw-invariant cues and one for direction-sensitive cues.
+      </p>
+    </div>
+
+    <figure class="long-figure">
+      <img
+        src="assets/figures/method-long.png"
+        alt="Transformation-Aware Decoupling method diagram"
+        loading="lazy"
+      />
+    </figure>
+
+    <p class="project-note">
+      TAD decouples relation reasoning at three levels:
+      transformation-specific geometric descriptors, non-shared invariant and directional
+      relation branches, and group-aware auxiliary objectives. The two relation factors are
+      then merged for unified 26-class multi-label predicate prediction.
+    </p>
+  </div>
+</section>
+
+<!-- DEMONSTRATIONS -->
+<section class="content-section" id="demos">
+  <div class="container">
+    <div class="section-title">
+      <p class="kicker">DEMONSTRATIONS</p>
+      <h2>Consistent scene graphs across yaw viewpoints.</h2>
+      <p>
+        We compare predictions for the same physical scene under rotated observation frames.
+      </p>
+    </div>
+
+    <div class="demo-grid">
+      <article class="demo-card">
+        <h3>Case 1 — Directional transformation under 90° rotation</h3>
+
+        <video
+          class="demo-video"
+          autoplay
+          muted
+          loop
+          playsinline
+          controls
+          preload="metadata"
+          poster="assets/figures/scene-01-poster.jpg"
+        >
+          <source src="assets/demos/scene-01.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-        <p class="media-caption">
-          Same physical scene under different yaw viewpoints:
-          <span class="invariant-text">yaw-invariant predicates remain stable</span>,
-          while <span class="directional-text">directional predicates transform with the observation frame</span>.
+
+        <p>
+          Under a 90° yaw rotation, directional predicates undergo an axis exchange:
+          for example,
+          <span class="directional-text">left → front</span>.
+          Meanwhile,
+          <span class="invariant-text">standing on</span>
+          remains unchanged. TAD captures both behaviors in a unified scene graph.
+        </p>
+      </article>
+
+      <article class="demo-card">
+        <h3>Case 2 — Baseline inconsistency under viewpoint rotation</h3>
+
+        <video
+          class="demo-video"
+          autoplay
+          muted
+          loop
+          playsinline
+          controls
+          preload="metadata"
+          poster="assets/figures/scene-02-poster.jpg"
+        >
+          <source src="assets/demos/scene-02.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+        <p>
+          A conventional baseline can appear plausible in the canonical view but becomes
+          inconsistent after rotation. TAD better preserves
+          <span class="invariant-text">attached to</span>
+          and
+          <span class="invariant-text">standing on</span>,
+          while updating directional predicates consistently with the observation frame.
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section class="content-section section-gray" id="results">
+  <div class="container">
+    <div class="section-title">
+      <p class="kicker">RESULTS</p>
+      <h2>Robust under evaluated yaw viewpoints.</h2>
+      <p>
+        TAD improves viewpoint robustness without training-time rotation augmentation,
+        while maintaining strong performance on the standard 3DSSG benchmark.
+      </p>
+    </div>
+
+    <div class="results-summary">
+      <div class="metric-grid">
+        <article class="metric-card">
+          <p class="metric-label">Overall R@50</p>
+          <p class="metric-value">86.0 → 84.5</p>
+          <p class="metric-delta">Only −1.5 at 90°</p>
+        </article>
+
+        <article class="metric-card">
+          <p class="metric-label">Directional mR@50</p>
+          <p class="metric-value">87.9 → 86.8</p>
+          <p class="metric-delta">Only −1.1 at 90°</p>
+        </article>
+
+        <article class="metric-card">
+          <p class="metric-label">Invariant mR@50</p>
+          <p class="metric-value">62.8 → 63.3</p>
+          <p class="metric-delta">Stable across viewpoints</p>
+        </article>
+      </div>
+
+      <div class="results-table-wrap">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>0° Overall R@50</th>
+              <th>90° Overall R@50</th>
+              <th>0° → 90° Change</th>
+              <th>90° Directional mR@50</th>
+              <th>90° Invariant mR@50</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>VL-SAT</td>
+              <td>79.9</td>
+              <td>68.2</td>
+              <td class="drop">−11.7</td>
+              <td>67.8</td>
+              <td>51.1</td>
+            </tr>
+
+            <tr>
+              <td>OCRL</td>
+              <td>82.0</td>
+              <td>69.9</td>
+              <td class="drop">−12.1</td>
+              <td>67.4</td>
+              <td>53.1</td>
+            </tr>
+
+            <tr class="highlight-row">
+              <td><strong>TAD (Ours)</strong></td>
+              <td class="best">86.0</td>
+              <td class="best">84.5</td>
+              <td class="small-drop">−1.5</td>
+              <td class="best">86.8</td>
+              <td class="best">63.3</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="protocol-box">
+        <h3>Viewpoint-Robust Evaluation Protocol</h3>
+        <p>
+          We keep each physical scene fixed and express its point cloud in yaw-rotated
+          observation frames at 0°, 90°, 180°, and 270°. Directional predicate labels are
+          transformed by the corresponding deterministic permutation, while yaw-invariant
+          predicates remain unchanged.
+        </p>
+        <p>
+          The main robustness evaluation uses PredCls with ground-truth object labels and
+          reports Overall R@50, directional mR@50, and invariant mR@50. This isolates
+          predicate-level transformation behavior from object-classification errors.
         </p>
       </div>
-    </section>
+    </div>
+  </div>
+</section>
 
-    <!-- MOTIVATION LONG FIGURE: assets/figures/motivation-long.png -->
-    <section class="content-section" id="motivation">
-      <div class="container">
-        <div class="section-title">
-          <p class="kicker">MOTIVATION</p>
-          <h2>Not all relations rotate alike.</h2>
-          <p>
-            Directional predicates should change with the observation frame, while approximately
-            yaw-invariant predicates should remain stable.
-          </p>
+<!-- REPRODUCIBILITY -->
+<section class="content-section" id="reproducibility">
+  <div class="container">
+    <div class="section-title">
+      <p class="kicker">REPRODUCIBILITY</p>
+      <h2>Experimental setting at a glance.</h2>
+      <p>
+        TAD is evaluated on the 3DSSG benchmark using a controlled yaw-viewpoint protocol.
+      </p>
+    </div>
+
+    <div class="repro-box">
+      <h3>Core setup</h3>
+
+      <div class="repro-grid">
+        <div class="repro-item">
+          <span>Dataset</span>
+          <strong>3DSSG / 3RScan</strong>
         </div>
-        <figure class="long-figure">
-          <img src="assets/figures/motivation-long.png"
-               alt="Motivation illustration of invariant and directional predicates under yaw rotations" />
-        </figure>
-      </div>
-    </section>
 
-    <!-- METHOD LONG FIGURE: assets/figures/method-long.png -->
-    <section class="content-section section-gray" id="method">
-      <div class="container">
-        <div class="section-title">
-          <p class="kicker">METHOD</p>
-          <h2>Transformation-Aware Decoupling.</h2>
-          <p>
-            TAD separates invariant and direction-sensitive relation reasoning while retaining
-            unified multi-label predicate prediction.
-          </p>
+        <div class="repro-item">
+          <span>Predicate space</span>
+          <strong>26 predicates</strong>
         </div>
-        <figure class="long-figure">
-          <img src="assets/figures/method-long.png"
-               alt="Transformation-Aware Decoupling method diagram" />
-        </figure>
-      </div>
-    </section>
 
-    <!-- TWO SIDE-BY-SIDE DEMOS:
-         assets/demos/scene-01.mp4
-         assets/demos/scene-02.mp4 -->
-    <section class="content-section" id="demos">
-      <div class="container">
-        <div class="section-title">
-          <p class="kicker">DEMONSTRATIONS</p>
-          <h2>Consistent scene graphs across yaw viewpoints.</h2>
-          <p>
-            Two qualitative cases comparing the same scene under rotated observation frames.
-          </p>
+        <div class="repro-item">
+          <span>Directional group</span>
+          <strong>left, front, right, behind</strong>
         </div>
-        <div class="demo-grid">
-          <article class="demo-card">
-            <h3>Case 1</h3>
-            <video class="demo-video" autoplay muted loop playsinline controls preload="metadata"
-                   poster="assets/figures/scene-01-poster.jpg">
-              <source src="assets/demos/scene-01.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-            <p>Replace this caption with one sentence explaining the key relations in this case.</p>
-          </article>
 
-          <article class="demo-card">
-            <h3>Case 2</h3>
-            <video class="demo-video" autoplay muted loop playsinline controls preload="metadata"
-                   poster="assets/figures/scene-02-poster.jpg">
-              <source src="assets/demos/scene-02.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-            <p>Replace this caption with one sentence describing a different scene or a baseline failure.</p>
-          </article>
+        <div class="repro-item">
+          <span>Training augmentation</span>
+          <strong>None for TAD</strong>
         </div>
       </div>
-    </section>
 
-    <!-- RESULTS LONG TABLE/IMAGE: assets/figures/results-table.png -->
-    <section class="content-section section-gray" id="results">
-      <div class="container">
-        <div class="section-title">
-          <p class="kicker">RESULTS</p>
-          <h2>Robust under evaluated yaw viewpoints.</h2>
-          <p>
-            TAD improves relation robustness without training-time rotation augmentation while
-            maintaining strong standard-benchmark performance.
-          </p>
-        </div>
-        <figure class="long-figure results-figure">
-          <img src="assets/figures/results-table.png"
-               alt="Quantitative comparison under standard and yaw-rotated viewpoints" />
-        </figure>
-        <p class="results-note">
-          Suggested one-line takeaway: TAD reduces the performance drop under 90° axis exchange
-          while preserving canonical-view accuracy.
-        </p>
-      </div>
-    </section>
+      <p>
+        The final model uses a viewpoint-stable object encoder and transformation-aware
+        relation decoupling. Evaluation is performed across cardinal yaw viewpoints under
+        the same physical-scene setting.
+      </p>
+    </div>
+  </div>
+</section>
 
-    <!-- CITATION -->
-    <section class="content-section citation-section" id="citation">
-      <div class="container citation-container">
-        <div class="section-title">
-          <p class="kicker">CITATION</p>
-          <h2>Use TAD in your work.</h2>
-        </div>
-        <div class="bibtex-wrap">
-          <button id="copy-bibtex" type="button">Copy BibTeX</button>
-          <pre id="bibtex">@inproceedings{tad_3dsgg_2026,
-  title     = {Not All Relations Rotate Alike:
-               Transformation-Aware Decoupling for
-               Viewpoint-Robust 3D Scene Graph Generation},
-  author    = {Anonymous Authors},
-  booktitle = {AAAI},
-  year      = {2026}
-}</pre>
-        </div>
-      </div>
-    </section>
+<!-- LIMITATIONS -->
+<section class="content-section section-gray" id="limitations">
+  <div class="container">
+    <div class="section-title">
+      <p class="kicker">LIMITATIONS</p>
+      <h2>Scope of the current study.</h2>
+    </div>
+
+    <div class="limitations-box">
+      <h3>Current assumptions</h3>
+      <p>
+        TAD focuses on gravity-aligned indoor scenes and robustness to yaw rotations.
+        The current evaluation uses the closed 26-class 3DSSG predicate vocabulary and
+        standard instance masks. Future work can extend the framework to partial visibility,
+        occlusion, reconstruction noise, richer predicate vocabularies, and softer or
+        data-adaptive transformation grouping.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- CITATION -->
+<section class="content-section citation-section" id="citation">
+  <div class="container citation-container">
+    <div class="section-title">
+      <p class="kicker">CITATION</p>
+      <h2>Use TAD in your work.</h2>
+    </div>
+
+    <p class="citation-status">
+      This citation is intentionally anonymous during review. Replace the author list,
+      venue, and publication details after the paper is publicly available.
+    </p>
+
+    <div class="bibtex-wrap">
+      <button id="copy-bibtex" type="button">Copy BibTeX</button>
+
+      <pre id="bibtex">@misc{tad_3dsgg_2026,
+```
+
+title  = {Not All Relations Rotate Alike:
+Transformation-Aware Decoupling for
+Viewpoint-Robust 3D Scene Graph Generation},
+author = {Anonymous Authors},
+year   = {2026},
+note   = {Under review}
+}</pre> </div> </div> </section>
+
   </main>
 
   <footer>
@@ -178,5 +829,6 @@
   </footer>
 
   <script src="main.js"></script>
+
 </body>
 </html>
