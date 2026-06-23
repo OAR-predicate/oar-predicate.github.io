@@ -11,8 +11,6 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
-  
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-carousel@4.0.3/dist/css/bulma-carousel.min.css">
 
   <style>
     body {
@@ -37,7 +35,7 @@
       margin-left: 2px;
     }
 
-    /* Soft UI 核心样式 (大幅提升页面高级感) */
+    /* Soft UI 核心样式 */
     .soft-shadow {
       border-radius: 16px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
@@ -50,19 +48,25 @@
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
       border: 1px solid rgba(0,0,0,0.04);
     }
-
-    .method-number {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background-color: #3273dc;
-      color: white;
-      font-weight: bold;
-      margin-bottom: 15px;
-      box-shadow: 0 4px 10px rgba(50, 115, 220, 0.3);
+    
+    /* 极简学术风 Method 卡片样式 */
+    .method-card {
+      background-color: #fafbfc;
+      border: 1px solid #f0f2f5;
+      border-radius: 12px;
+      padding: 1.75rem 1.5rem;
+      height: 100%;
+      transition: box-shadow 0.3s ease;
+    }
+    .method-card:hover {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+    }
+    .method-number-text {
+      color: #3273dc;
+      font-family: 'Google Sans', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-right: 8px;
     }
     
     .metric-card {
@@ -88,9 +92,6 @@
     /* 文本高亮 */
     .directional-blue { color: #3273dc; font-weight: bold; }
     .invariant-black { color: #202020; font-weight: bold; }
-    
-    /* 轮播图定制调整 */
-    .carousel .item { padding: 10px; }
   </style>
 </head>
 <body>
@@ -127,304 +128,3 @@
                     <span class="icon"><i class="ai ai-arxiv"></i></span>
                     <span>arXiv</span>
                   </a>
-                </span>
-                <span class="link-block">
-                  <a href="https://github.com/Gineven/TAD" class="button is-dark is-rounded is-medium" target="_blank">
-                    <span class="icon"><i class="fab fa-github"></i></span>
-                    <span>Code</span>
-                  </a>
-                </span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="hero teaser mb-6">
-    <div class="container is-max-desktop">
-      <div class="hero-body has-text-centered">
-        <video class="teaser-video" autoplay muted loop playsinline controls width="100%" poster="assets/figures/hero-poster.jpg">
-          <source src="assets/demos/hero.mp4" type="video/mp4" />
-        </video>
-        <h2 class="subtitle has-text-centered mt-5 has-text-grey" style="max-width: 900px; margin: 0 auto; line-height: 1.6;">
-          Across changing viewpoints, directional relations such as <span class="directional-blue">left, right, front, and behind transform with the observation frame</span>, while viewpoint-invariant relations such as <span class="invariant-black">standing on and attached to remain stable.</span>
-        </h2>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <h2 class="title is-3">🚀 Abstract</h2>
-          <div class="content has-text-justified is-size-6" style="line-height: 1.8;">
-            <p>
-              3D Scene Graph Generation (3DSGG) represents 3D scenes as structured object-relation-object graphs, providing a compact relational abstraction for embodied spatial understanding. In embodied applications, the same scene may be observed from viewpoints that differ by yaw rotations. However, current 3DSGG models often fail to produce relation predictions that follow the expected transformation behavior under such viewpoint shifts. We attribute this limitation to predicate-level transformation heterogeneity: directional predicates such as <i>left</i>, <i>front</i>, <i>right</i>, and <i>behind</i> should transform with the observation frame, whereas most contact, support, and semantic predicates such as <i>standing on</i> and <i>attached to</i> should remain stable. To address this conflict, we propose Transformation-Aware Decoupling (TAD), a viewpoint-robust 3DSGG framework that decouples relation reasoning according to predicate transformation behavior and is supported by viewpoint-stable object representations. TAD decomposes relation reasoning into two parts: one learns cues that should stay stable across viewpoints, while the other learns directional cues that should change with the observation frame. The two parts are then merged for standard multi-label predicate prediction. Transformation-specific descriptors and group-aware auxiliary supervision encourage the two branches to capture complementary relation cues. Extensive experiments on 3DSSG show that TAD achieves state-of-the-art robustness under yaw viewpoint changes without training-time rotation augmentation, while maintaining competitive performance under the standard benchmark.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <h2 class="title is-3">💡 Motivation</h2>
-          <div class="content has-text-justified is-size-6" style="line-height: 1.8;">
-            <p>
-              <strong>Not all relations should respond to rotation in the same way.</strong> 
-              Under yaw viewpoint changes, directional predicates such as left, right, front, and behind should change with the observation frame, whereas most support, contact, and semantic predicates should remain stable.
-            </p>
-          </div>
-          <figure class="image mt-4">
-            <img class="soft-shadow" src="assets/figures/motivation-long.png" alt="Illustration of directional and yaw-invariant predicates under rotation">
-          </figure>
-          <p class="has-text-grey is-size-6 mt-4">
-            TAD addresses the conflict between relation types with different transformation behavior under yaw rotation.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-full">
-          <h2 class="title is-3">⚙️ Method: Transformation-Aware Decoupling</h2>
-          <div class="content has-text-justified is-size-6">
-            <p class="has-text-centered mb-5">
-              TAD combines viewpoint-stable object representations with decoupled relation reasoning for invariant and direction-sensitive predicates.
-            </p>
-          </div>
-          
-          <figure class="image mb-6">
-            <img class="soft-shadow" src="assets/figures/method-long.png" alt="Architecture diagram of Transformation-Aware Decoupling">
-            <p class="has-text-grey is-size-6 mt-4">
-              The framework separates relation reasoning through transformation-specific descriptors, independent branches, and group-aware training objectives.
-            </p>
-          </figure>
-
-          <div class="columns is-centered has-text-left mt-6">
-            <div class="column is-one-third">
-              <div class="box soft-shadow h-100">
-                <span class="method-number">1</span>
-                <h3 class="title is-5 mb-2">Viewpoint-Stable Objects</h3>
-                <p class="is-size-6 has-text-grey">A rotation-stable object encoder provides reliable object representations for downstream relation reasoning.</p>
-              </div>
-            </div>
-            <div class="column is-one-third">
-              <div class="box soft-shadow h-100">
-                <span class="method-number">2</span>
-                <h3 class="title is-5 mb-2">Decoupled Relation Branches</h3>
-                <p class="is-size-6 has-text-grey">Invariant and directional predicates are processed with non-shared relation branches instead of one entangled relation space.</p>
-              </div>
-            </div>
-            <div class="column is-one-third">
-              <div class="box soft-shadow h-100">
-                <span class="method-number">3</span>
-                <h3 class="title is-5 mb-2">Unified Prediction</h3>
-                <p class="is-size-6 has-text-grey">The two relation factors are merged to preserve the original 26-class multi-label predicate prediction setting.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container is-max-desktop">
-      <div class="has-text-centered mb-5">
-        <h2 class="title is-3">🎥 Scene Graphs Evolve with Viewpoint</h2>
-        <p class="has-text-grey">
-          Drag to slide or use arrows. Each animation pairs a continuously rotating input scene with the corresponding predicted 3D scene graph.
-        </p>
-      </div>
-
-      <div class="columns is-centered">
-        <div class="column is-10">
-          <div id="results-carousel" class="carousel results-carousel">
-            
-            <div class="item">
-              <div class="box soft-shadow mx-2">
-                <span class="tag is-info is-light mb-3 has-text-weight-bold">Scene 01</span>
-                <h3 class="title is-5 mb-4">Rotating scene and dynamic relation graph</h3>
-                <video class="teaser-video mb-4" autoplay muted loop playsinline controls width="100%" poster="assets/figures/scene-01-poster.jpg">
-                  <source src="assets/demos/scene-01.mp4" type="video/mp4" />
-                </video>
-                <p class="is-size-6 has-text-grey">
-                  The input 3D scene rotates continuously, while the scene graph below is updated in sync with the current observation frame.
-                </p>
-              </div>
-            </div>
-
-            <div class="item">
-              <div class="box soft-shadow mx-2">
-                <span class="tag is-info is-light mb-3 has-text-weight-bold">Scene 02</span>
-                <h3 class="title is-5 mb-4">Continuous rotation in a second scene</h3>
-                <video class="teaser-video mb-4" autoplay muted loop playsinline controls width="100%" poster="assets/figures/scene-02-poster.jpg">
-                  <source src="assets/demos/scene-02.mp4" type="video/mp4" />
-                </video>
-                <p class="is-size-6 has-text-grey">
-                  A second rotating scene with its graph prediction shown throughout the motion, illustrating the viewpoint-dependent evolution of relation edges.
-                </p>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered mb-6">
-        <div class="column is-full">
-          <h2 class="title is-3">📊 Experiments</h2>
-          <p class="is-size-5 has-text-grey">Strong canonical performance, stable rotated-view predictions.</p>
-        </div>
-      </div>
-
-      <div class="columns is-vcentered mb-6">
-        <div class="column is-7">
-          <div class="box has-background-link has-text-white soft-shadow" style="padding: 2.5rem; border: none;">
-            <p class="is-size-7 has-text-weight-bold is-uppercase mb-3" style="letter-spacing: 1.5px; opacity: 0.8;">Main takeaway</p>
-            <h3 class="title is-3 has-text-white" style="line-height: 1.4;">TAD reduces the 0° → 90° Overall R@50 drop to only 1.5 points.</h3>
-            <p class="is-size-6 mt-4" style="opacity: 0.9;">
-              The model maintains high directional and invariant relation accuracy when the observation frame undergoes the challenging 90° axis exchange.
-            </p>
-          </div>
-        </div>
-        <div class="column is-5">
-          <div class="columns is-multiline">
-            <div class="column is-12 py-2">
-              <div class="box soft-shadow is-flex is-align-items-center is-justify-content-space-between m-0">
-                <div><p class="metric-label">Overall R@50</p><p class="metric-value">86.0 → 84.5</p></div>
-                <span class="tag is-success is-light is-medium has-text-weight-bold px-3 py-2">−1.5 @ 90°</span>
-              </div>
-            </div>
-            <div class="column is-12 py-2">
-              <div class="box soft-shadow is-flex is-align-items-center is-justify-content-space-between m-0">
-                <div><p class="metric-label">Directional mR@50</p><p class="metric-value">87.9 → 86.8</p></div>
-                <span class="tag is-success is-light is-medium has-text-weight-bold px-3 py-2">−1.1 @ 90°</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <h3 class="title is-4 mt-6 has-text-centered">Main rotated-view robustness</h3>
-      
-      <figure class="image mt-5 mb-6 has-text-centered">
-        <img class="soft-shadow" src="assets/figures/results-table.png" alt="Radar chart" style="max-width: 900px; width: 100%; margin: 0 auto; display: block;">
-      </figure>
-
-      <div class="table-container soft-shadow">
-        <table class="table is-striped is-hoverable is-fullwidth has-text-centered mb-0">
-          <thead>
-            <tr class="has-background-white-ter">
-              <th class="has-text-left py-4 px-5">Method</th>
-              <th class="has-text-centered py-4">0° Overall R@50</th>
-              <th class="has-text-centered py-4">90° Overall R@50</th>
-              <th class="has-text-centered py-4">0° → 90° Change</th>
-              <th class="has-text-centered py-4">90° Directional mR@50</th>
-              <th class="has-text-centered py-4">90° Invariant mR@50</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="has-text-left px-5">VL-SAT</td>
-              <td>79.9</td><td>68.2</td><td class="has-text-danger has-text-weight-bold">−11.7</td><td>67.8</td><td>51.1</td>
-            </tr>
-            <tr>
-              <td class="has-text-left px-5">OCRL</td>
-              <td>82.0</td><td>69.9</td><td class="has-text-danger has-text-weight-bold">−12.1</td><td>67.4</td><td>53.1</td>
-            </tr>
-            <tr class="has-background-success-light">
-              <td class="has-text-left has-text-weight-bold px-5">TAD (Ours)</td>
-              <td class="has-text-weight-bold">86.0</td><td class="has-text-weight-bold">84.5</td><td class="has-text-success has-text-weight-bold">−1.5</td><td class="has-text-weight-bold">86.8</td><td class="has-text-weight-bold">63.3</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <h3 class="title is-4 mt-6 pt-5 has-text-centered">Ablation: where the robustness comes from</h3>
-      <div class="table-container soft-shadow mt-5">
-        <table class="table is-striped is-hoverable is-fullwidth has-text-centered mb-0">
-          <thead>
-            <tr class="has-background-white-ter">
-              <th class="has-text-left py-4 px-5">Configuration</th>
-              <th class="has-text-centered py-4">Triplet R@50</th>
-              <th class="has-text-centered py-4">SGCls mR@50</th>
-              <th class="has-text-centered py-4">PredCls R@50</th>
-              <th class="has-text-centered py-4">PredCls mR@50</th>
-              <th class="has-text-centered py-4">90° R@50</th>
-              <th class="has-text-centered py-4">90° mR@50</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td class="has-text-left px-5">Baseline</td><td>89.83</td><td>23.6</td><td>79.2</td><td>57.8</td><td>59.8</td><td>36.48</td></tr>
-            <tr><td class="has-text-left px-5">+ VSOE</td><td>90.37</td><td>32.1</td><td>83.6</td><td>63.6</td><td>68.4</td><td>51.5</td></tr>
-            <tr><td class="has-text-left px-5">+ VSOE + TAD</td><td>90.95</td><td>33.1</td><td>85.0</td><td>64.3</td><td>83.3</td><td>62.7</td></tr>
-            <tr class="has-background-success-light">
-              <td class="has-text-left has-text-weight-bold px-5">+ VSOE + TAD + TSD (Ours)</td>
-              <td class="has-text-weight-bold">91.03</td><td class="has-text-weight-bold">34.6</td><td class="has-text-weight-bold">86.0</td><td class="has-text-weight-bold">66.7</td><td class="has-text-weight-bold">84.5</td><td class="has-text-weight-bold">66.9</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-    </div>
-  </section>
-
-  <section class="section pt-0" id="BibTeX">
-    <div class="container is-max-desktop content">
-      <h2 class="title">🔗 BibTeX</h2>
-      <pre class="soft-shadow"><code>@misc{tad_3dsgg_2026,
-  title  = {Not All Relations Rotate Alike: Transformation-Aware Decoupling for Viewpoint-Robust 3D Scene Graph Generation},
-  author = {Anonymous Authors},
-  year   = {2026},
-  note   = {Under review}
-}</code></pre>
-    </div>
-  </section>
-
-  <footer class="footer mt-6 pb-6">
-    <div class="container">
-      <div class="columns is-centered">
-        <div class="column is-8 has-text-centered">
-          <p class="has-text-grey">
-            This website template is inspired by <a href="https://github.com/nerfies/nerfies.github.io" target="_blank" class="has-text-info">Nerfies</a> and <a href="https://openfungraph.github.io/" target="_blank" class="has-text-info">OpenFunGraph</a>. 
-            <br>© 2026 TAD Project Page.
-          </p>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  <script src="https://cdn.jsdelivr.net/npm/bulma-carousel@4.0.3/dist/js/bulma-carousel.min.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // 激活轮播图
-      var carousels = bulmaCarousel.attach('.carousel', {
-        slidesToScroll: 1,
-        slidesToShow: 1,
-        loop: true,
-        infinite: true,
-        autoplay: false,
-        pagination: true,
-        navigation: true,
-        navigationSwipe: true
-      });
-    });
-  </script>
-</body>
-</html>
