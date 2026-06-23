@@ -126,7 +126,7 @@
           <source src="assets/demos/hero.mp4" type="video/mp4" />
         </video>
         <h2 class="subtitle has-text-centered mt-4 has-text-grey">
-          Across changing viewpoints, directional relations such as <span class="directional-blue">left, right, front, and behind</span> transform with the observation frame, while viewpoint-invariant relations such as <span class="invariant-black">standing on and attached to</span> remain stable.
+          Across changing viewpoints, directional relations such as <span class="directional-blue">left, right, front, and behind transform with the observation frame</span>, while viewpoint-invariant relations such as <span class="invariant-black">standing on and attached to remain stable.</span>
         </h2>
       </div>
     </div>
@@ -139,19 +139,7 @@
           <h2 class="title is-3">Abstract</h2>
           <div class="content has-text-justified">
             <p>
-              3D Scene Graph Generation (3DSGG) represents 3D scenes as structured object-relation-object graphs, providing a compact relational abstraction for embodied spatial understanding.
-            </p>
-            <p>
-              In embodied applications, the same scene may be observed from viewpoints that differ by yaw rotations. However, current 3DSGG models often fail to produce relation predictions that follow the expected transformation behavior under such viewpoint shifts.
-            </p>
-            <p>
-              We attribute this limitation to predicate-level transformation heterogeneity: directional predicates such as <i>left</i>, <i>front</i>, <i>right</i>, and <i>behind</i> should transform with the observation frame, whereas most contact, support, and semantic predicates such as <i>standing on</i> and <i>attached to</i> should remain stable.
-            </p>
-            <p>
-              To address this conflict, we propose Transformation-Aware Decoupling (TAD), a viewpoint-robust 3DSGG framework that decouples relation reasoning according to predicate transformation behavior and is supported by viewpoint-stable object representations. TAD decomposes relation reasoning into two parts: one learns cues that should stay stable across viewpoints, while the other learns directional cues that should change with the observation frame. The two parts are then merged for standard multi-label predicate prediction. Transformation-specific descriptors and group-aware auxiliary supervision encourage the two branches to capture complementary relation cues.
-            </p>
-            <p>
-              Extensive experiments on 3DSSG show that TAD achieves state-of-the-art robustness under yaw viewpoint changes without training-time rotation augmentation, while maintaining competitive performance under the standard benchmark.
+              3D Scene Graph Generation (3DSGG) represents 3D scenes as structured object-relation-object graphs, providing a compact relational abstraction for embodied spatial understanding. In embodied applications, the same scene may be observed from viewpoints that differ by yaw rotations. However, current 3DSGG models often fail to produce relation predictions that follow the expected transformation behavior under such viewpoint shifts. We attribute this limitation to predicate-level transformation heterogeneity: directional predicates such as <i>left</i>, <i>front</i>, <i>right</i>, and <i>behind</i> should transform with the observation frame, whereas most contact, support, and semantic predicates such as <i>standing on</i> and <i>attached to</i> should remain stable. To address this conflict, we propose Transformation-Aware Decoupling (TAD), a viewpoint-robust 3DSGG framework that decouples relation reasoning according to predicate transformation behavior and is supported by viewpoint-stable object representations. TAD decomposes relation reasoning into two parts: one learns cues that should stay stable across viewpoints, while the other learns directional cues that should change with the observation frame. The two parts are then merged for standard multi-label predicate prediction. Transformation-specific descriptors and group-aware auxiliary supervision encourage the two branches to capture complementary relation cues. Extensive experiments on 3DSSG show that TAD achieves state-of-the-art robustness under yaw viewpoint changes without training-time rotation augmentation, while maintaining competitive performance under the standard benchmark.
             </p>
           </div>
         </div>
@@ -249,7 +237,7 @@
         <div class="column is-half">
           <div class="box">
             <span class="tag is-info mb-2">Scene 02</span>
-            <h3 class="title is-5 mb-3">Continuous viewpoint change in a second scene</h3>
+            <h3 class="title is-5 mb-3">Continuous rotation in a second scene</h3>
             <video class="teaser-video" autoplay muted loop playsinline controls width="100%" poster="assets/figures/scene-02-poster.jpg">
               <source src="assets/demos/scene-02.mp4" type="video/mp4" />
             </video>
