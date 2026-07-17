@@ -37,8 +37,8 @@
       --line: #e8ebef;
       --oi: #f2a900;
       --oi-soft: #fff7df;
-      --od: #3a9b35;
-      --od-soft: #eaf8e8;
+      --od: #7d2f3a;
+      --od-soft: #f5e9eb;
       --accent: #6d4bc3;
       --accent-soft: #f2edff;
       --blue: #2f80c8;
@@ -254,7 +254,23 @@
 
     .concept-card.is-od .concept-label {
       background: var(--od-soft);
-      color: #2c7c29;
+      color: #7d2f3a;
+    }
+
+    .od-text {
+      color: var(--od) !important;
+      font-weight: 700;
+    }
+
+    .radar-figure {
+      max-width: 900px;
+      margin: 0 auto 3rem;
+    }
+
+    .radar-figure img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
     }
 
     .method-card {
@@ -473,40 +489,6 @@
       background: #111318;
     }
 
-    .video-slide-label {
-      position: absolute;
-      top: 1rem;
-      left: 1rem;
-      z-index: 4;
-      max-width: min(520px, calc(100% - 7rem));
-      padding: 0.75rem 0.9rem;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-radius: 14px;
-      color: #ffffff;
-      background: rgba(14, 18, 25, 0.72);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      pointer-events: none;
-    }
-
-    .video-slide-label .demo-index {
-      display: block;
-      margin-bottom: 0.18rem;
-      color: #9fd7ff;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
-
-    .video-slide-label strong {
-      display: block;
-      font-family: "Google Sans", "Noto Sans", sans-serif;
-      font-size: clamp(0.92rem, 1.7vw, 1.18rem);
-      line-height: 1.3;
-    }
-
     .carousel-arrow {
       position: absolute;
       top: 50%;
@@ -617,14 +599,6 @@
       .video-stage {
         aspect-ratio: 4 / 3;
         border-radius: 15px;
-      }
-
-      .video-slide-label {
-        top: 0.65rem;
-        left: 0.65rem;
-        max-width: calc(100% - 4.8rem);
-        padding: 0.55rem 0.7rem;
-        border-radius: 10px;
       }
 
       .carousel-arrow {
@@ -771,11 +745,6 @@
                 <source src="assets/demos/hero.mp4" type="video/mp4">
                 Your browser does not support the video tag.
               </video>
-
-              <div class="video-slide-label">
-                <span class="demo-index">Demo 01</span>
-                <strong>Observer-frame reorientation and relation reinterpretation</strong>
-              </div>
             </article>
 
             <article
@@ -793,11 +762,6 @@
                 <source src="assets/demos/scene-01.mp4" type="video/mp4">
                 Your browser does not support the video tag.
               </video>
-
-              <div class="video-slide-label">
-                <span class="demo-index">Demo 02</span>
-                <strong>Rotating scene with synchronized dynamic scene-graph prediction</strong>
-              </div>
             </article>
 
             <article
@@ -815,11 +779,6 @@
                 <source src="assets/demos/scene-02.mp4" type="video/mp4">
                 Your browser does not support the video tag.
               </video>
-
-              <div class="video-slide-label">
-                <span class="demo-index">Demo 03</span>
-                <strong>Continuous observer-frame change in a second test scene</strong>
-              </div>
             </article>
 
             <button
@@ -890,7 +849,7 @@
         <p class="figure-caption has-text-centered">
           A physical scene remains unchanged while its local observer frame is reoriented.
           <strong>Observer-Independent (OI)</strong> relations preserve their semantics,
-          whereas <strong>Observer-Dependent (OD)</strong> directional relations must be
+          whereas <strong class="od-text">Observer-Dependent (OD)</strong> directional relations must be
           reinterpreted relative to the current frame.
         </p>
       </div>
@@ -914,7 +873,7 @@
             the same scene is re-expressed in a different observer frame. We attribute
             this failure to the heterogeneous frame dependency of relational predicates.
             Directional predicates such as <em>left</em>, <em>front</em>, <em>right</em>,
-            and <em>behind</em> are Observer-Dependent Relations, whereas most contact,
+            and <em>behind</em> are <strong class="od-text">Observer-Dependent Relations</strong>, whereas most contact,
             support, and semantic predicates, such as <em>standing on</em> and
             <em>attached to</em>, are approximately Observer-Independent Relations.
             Conventional models do not distinguish these frame responses, leading to
@@ -1107,7 +1066,7 @@
 
             <div class="metric-card">
               <div>
-                <p class="metric-label">OD mR@50</p>
+                <p class="metric-label od-text">OD mR@50</p>
                 <p class="metric-value">87.9 → 86.8</p>
               </div>
               <span class="tag metric-delta px-3 py-2">−1.1 @ 90°</span>
@@ -1135,7 +1094,7 @@
                   <th>0° Overall R@50</th>
                   <th>90° Overall R@50</th>
                   <th>Δ90°</th>
-                  <th>90° OD mR@50</th>
+                  <th><span class="od-text">90° OD mR@50</span></th>
                   <th>90° OI mR@50</th>
                 </tr>
               </thead>
@@ -1184,6 +1143,13 @@
             </table>
           </div>
         </div>
+
+        <figure class="figure-frame radar-figure">
+          <img
+            src="assets/figures/results-table.png"
+            alt="Radar chart comparing observer-frame robustness across cardinal reorientations."
+          >
+        </figure>
 
         <h3 class="title is-4 has-text-centered mb-5">
           Standard 3DSSG benchmark
@@ -1238,7 +1204,7 @@
         </figure>
         <p class="figure-caption has-text-centered mb-6">
           VL-SAT becomes inconsistent under the 90° cross-axis reorientation.
-          OAR better follows the expected OD predicate re-indexing while preserving
+          OAR better follows the expected <span class="od-text">OD predicate</span> re-indexing while preserving
           OI relations such as <em>standing on</em> and <em>attached to</em>.
         </p>
 
