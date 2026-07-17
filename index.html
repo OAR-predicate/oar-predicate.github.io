@@ -3,453 +3,1582 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Transformation-Aware Decoupling for Viewpoint-Robust 3D Scene Graph Generation." />
-  <title>TAD: Not All Relations Rotate Alike</title>
 
-  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <meta
+    name="description"
+    content="Observer-Aware Relations (OAR) for observer-centric 3D Scene Graph Generation."
+  />
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <title>OAR: From Scene-Centric to Observer-Centric</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css"
+  >
 
   <style>
-    body {
-      font-family: 'Noto Sans', sans-serif;
-    }
-    h1, h2, h3, h4, h5, h6 {
-      font-family: 'Google Sans', sans-serif;
-    }
-    .publication-title {
-      font-weight: 800;
-      letter-spacing: -0.5px;
-    }
-    
-    /* 作者排版样式 */
-    .author-block {
-      display: inline-block;
-      margin-right: 15px;
-      font-size: 1.15rem;
-    }
-    .author-block sup {
-      color: #7a7a7a;
-      margin-left: 2px;
+    :root {
+      --ink: #202124;
+      --muted: #68707b;
+      --surface: #f7f8fa;
+      --line: #e8ebef;
+
+      --oi: #f2a900;
+      --oi-soft: #fff7df;
+
+      --od: #3a9b35;
+      --od-soft: #eaf8e8;
+
+      --accent: #6d4bc3;
+      --accent-soft: #f2edff;
+
+      --blue: #2f80c8;
+      --blue-soft: #eaf5ff;
     }
 
-    /* Soft UI 核心样式 */
-    .soft-shadow {
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-      border: 1px solid rgba(0,0,0,0.03);
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      color: var(--ink);
+      font-family: "Noto Sans", sans-serif;
+      background:
+        radial-gradient(
+          circle at 8% 2%,
+          rgba(47, 128, 200, 0.08),
+          transparent 30rem
+        ),
+        radial-gradient(
+          circle at 92% 8%,
+          rgba(109, 75, 195, 0.08),
+          transparent 28rem
+        ),
+        #ffffff;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    .button,
+    .tag,
+    .metric-value {
+      font-family: "Google Sans", "Noto Sans", sans-serif;
+    }
+
+    a {
+      color: #2f73bd;
+    }
+
+    .page-shell {
       overflow: hidden;
     }
-    
-    .teaser-video {
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-      border: 1px solid rgba(0,0,0,0.04);
-    }
-    
-    /* 水印风 Method 卡片样式 */
-    .method-card {
-      background-color: #fafbfc;
-      border: 1px solid #f0f2f5;
-      border-radius: 12px;
-      padding: 1.75rem 1.5rem;
-      height: 100%;
-      position: relative; /* 为水印定位准备 */
-      overflow: hidden;   /* 防止水印溢出卡片 */
-      z-index: 1;
-      transition: box-shadow 0.3s ease, transform 0.3s ease;
-    }
-    .method-card:hover {
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
-      transform: translateY(-2px); /* 悬停时轻微上浮 */
-    }
-    
-    /* 巨型水印数字 CSS */
-    .method-watermark {
-      position: absolute;
-      bottom: -15px;
-      right: -5px;
-      font-size: 6.5rem; /* 巨型字号 */
-      font-family: 'Google Sans', sans-serif;
-      font-weight: 900;
-      color: rgba(50, 115, 220, 0.06); /* 6%的淡蓝色，极其微弱 */
-      z-index: -1; /* 藏在文字底层 */
-      user-select: none;
-      line-height: 1;
-      letter-spacing: -3px;
-    }
-    
-    .metric-card {
-      background: #f8f9fa;
-      border-radius: 12px;
-      padding: 1.5rem;
-      text-align: center;
-    }
-    .metric-value {
-      font-size: 2.2rem;
-      font-weight: 800;
-      color: #363636;
-      line-height: 1.2;
-    }
-    .metric-label {
-      font-size: 0.85rem;
-      color: #7a7a7a;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      margin-bottom: 5px;
+
+    .container-wide {
+      width: min(1180px, calc(100% - 2rem));
+      margin-inline: auto;
     }
 
-    /* 文本高亮 */
-    .directional-blue { color: #3273dc; font-weight: bold; }
-    .invariant-black { color: #202020; font-weight: bold; }
+    /* =========================
+       Header
+    ========================= */
+
+    .hero-section {
+      padding: 5.25rem 1rem 2.25rem;
+    }
+
+    .paper-badge {
+      gap: 0.45rem;
+      border: 1px solid #d8e9f8;
+      background: rgba(234, 245, 255, 0.9);
+      color: #23689f;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .publication-title {
+      max-width: 1080px;
+      margin-inline: auto;
+      font-weight: 700;
+      letter-spacing: -0.045em;
+      line-height: 1.08;
+    }
+
+    .publication-subtitle {
+      display: block;
+      margin-top: 0.55rem;
+      color: #5d6470;
+      font-size: clamp(1.35rem, 2.5vw, 2rem);
+      font-weight: 500;
+      letter-spacing: -0.025em;
+      line-height: 1.25;
+    }
+
+    /* =========================
+       Authors
+    ========================= */
+
+    .publication-authors {
+      margin-top: 1.75rem;
+      color: #424851;
+      line-height: 1.8;
+    }
+
+    .author-block {
+      display: inline-block;
+      margin: 0 0.45rem;
+      font-size: 1.1rem;
+      white-space: nowrap;
+    }
+
+    .author-block a {
+      color: #2f73bd;
+      font-weight: 600;
+    }
+
+    .author-block sup,
+    .affiliation-block sup,
+    .contribution-note sup {
+      color: #7a818c;
+      margin-left: 0.12rem;
+    }
+
+    .affiliation-block {
+      margin-top: 0.85rem;
+      color: #4f5661;
+      font-size: 0.98rem;
+      line-height: 1.7;
+    }
+
+    .contribution-note {
+      margin-top: 0.45rem;
+      color: #747b86;
+      font-size: 0.9rem;
+      font-style: italic;
+    }
+
+    /* =========================
+       Links
+    ========================= */
+
+    .link-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 1.8rem;
+    }
+
+    .paper-button {
+      min-width: 132px;
+      border: 0;
+      box-shadow: 0 8px 22px rgba(32, 33, 36, 0.12);
+      transition:
+        transform 160ms ease,
+        box-shadow 160ms ease;
+    }
+
+    .paper-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(32, 33, 36, 0.16);
+    }
+
+    /* =========================
+       Shared cards
+    ========================= */
+
+    .soft-card,
+    .figure-frame,
+    .table-frame,
+    .metric-card,
+    .method-card,
+    .takeaway-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 12px 36px rgba(32, 33, 36, 0.07);
+    }
+
+    /* =========================
+       Figures
+    ========================= */
+
+    .figure-frame {
+      overflow: hidden;
+      padding: 0.75rem;
+    }
+
+    .figure-frame img {
+      display: block;
+      width: 100%;
+      border-radius: 12px;
+    }
+
+    .hero-figure {
+      max-width: 1180px;
+      margin: 1rem auto 0;
+    }
+
+    .figure-caption {
+      max-width: 980px;
+      margin: 1rem auto 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.65;
+    }
+
+    /* =========================
+       Section text
+    ========================= */
+
+    .section-heading {
+      margin-bottom: 0.65rem !important;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .section-kicker {
+      margin-bottom: 0.7rem;
+      color: var(--accent);
+      font-family: "Google Sans", sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .lead-copy {
+      color: #454b55;
+      font-size: 1.02rem;
+      line-height: 1.82;
+    }
+
+    .anchor-offset {
+      scroll-margin-top: 1rem;
+    }
+
+    /* =========================
+       OI / OD concept cards
+    ========================= */
+
+    .concept-card {
+      height: 100%;
+      padding: 1.6rem;
+    }
+
+    .concept-card .concept-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.8rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .concept-card.is-oi {
+      border-top: 4px solid var(--oi);
+    }
+
+    .concept-card.is-od {
+      border-top: 4px solid var(--od);
+    }
+
+    .concept-card.is-oi .concept-label {
+      background: var(--oi-soft);
+      color: #8f6400;
+    }
+
+    .concept-card.is-od .concept-label {
+      background: var(--od-soft);
+      color: #2c7c29;
+    }
+
+    /* =========================
+       Method cards
+    ========================= */
+
+    .method-card {
+      position: relative;
+      height: 100%;
+      overflow: hidden;
+      padding: 1.55rem;
+    }
+
+    .method-card::after {
+      position: absolute;
+      right: -0.15rem;
+      bottom: -1.15rem;
+      color: rgba(109, 75, 195, 0.07);
+      content: attr(data-step);
+      font-family: "Google Sans", sans-serif;
+      font-size: 6.5rem;
+      font-weight: 700;
+      letter-spacing: -0.08em;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .method-card h3 {
+      position: relative;
+      z-index: 1;
+    }
+
+    .method-card p {
+      position: relative;
+      z-index: 1;
+      color: var(--muted);
+      line-height: 1.68;
+    }
+
+    .method-chip {
+      display: inline-block;
+      margin-bottom: 0.9rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    /* =========================
+       Results
+    ========================= */
+
+    .takeaway-card {
+      height: 100%;
+      padding: 2.35rem;
+      border: none;
+      color: #ffffff;
+      background:
+        linear-gradient(
+          135deg,
+          rgba(77, 55, 170, 0.98),
+          rgba(47, 128, 200, 0.96)
+        );
+    }
+
+    .takeaway-card .eyebrow {
+      margin-bottom: 0.75rem;
+      opacity: 0.78;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .metric-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.9rem;
+      padding: 1.25rem 1.35rem;
+    }
+
+    .metric-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .metric-label {
+      margin-bottom: 0.25rem;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .metric-value {
+      color: #30343a;
+      font-size: clamp(1.45rem, 2.4vw, 2rem);
+      font-weight: 700;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+
+    .metric-delta {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: #e9f8ed;
+      color: #257a3f;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    /* =========================
+       Tables
+    ========================= */
+
+    .table-frame {
+      overflow: hidden;
+    }
+
+    .table-frame .table-container {
+      margin: 0;
+    }
+
+    .table-frame table {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .table-frame th {
+      color: #3d434c;
+      background: #f7f8fa;
+      vertical-align: middle;
+    }
+
+    .table-frame td {
+      vertical-align: middle;
+    }
+
+    .ours-row {
+      background: #eef9ef !important;
+    }
+
+    .delta-good {
+      color: #257a3f;
+      font-weight: 700;
+    }
+
+    .delta-bad {
+      color: #c74848;
+      font-weight: 700;
+    }
+
+    /* =========================
+       BibTeX
+    ========================= */
+
+    .code-card {
+      overflow-x: auto;
+      padding: 1.4rem;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #f6f7f9;
+      color: #30343a;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .copy-button {
+      float: right;
+    }
+
+    /* =========================
+       Footer
+    ========================= */
+
+    .footer {
+      border-top: 1px solid var(--line);
+      background: rgba(247, 248, 250, 0.82);
+    }
+
+    /* =========================
+       Mobile
+    ========================= */
+
+    @media (max-width: 768px) {
+      .hero-section {
+        padding-top: 3.5rem;
+      }
+
+      .publication-title {
+        font-size: 2.25rem !important;
+      }
+
+      .section {
+        padding-inline: 1rem;
+      }
+
+      .author-block {
+        margin: 0 0.2rem;
+        font-size: 1rem;
+      }
+
+      .takeaway-card {
+        padding: 1.75rem;
+      }
+
+      .metric-card {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .metric-value {
+        white-space: normal;
+      }
+
+      .figure-frame {
+        padding: 0.4rem;
+        border-radius: 13px;
+      }
+    }
   </style>
 </head>
+
 <body>
+  <main class="page-shell">
 
-  <section class="hero mt-6 mb-4">
-    <div class="hero-body">
-      <div class="container is-max-desktop">
-        <div class="columns is-centered">
-          <div class="column has-text-centered">
-            
-            <span class="tag is-info is-light is-rounded mb-4 px-4 py-3 is-size-7 has-text-weight-bold">
-              ✨ VIEWPOINT-ROBUST 3D SCENE GRAPHS
+    <!-- =========================
+         Title and authors
+    ========================== -->
+
+    <section class="hero-section">
+      <div class="container-wide has-text-centered">
+
+        <span class="tag is-rounded paper-badge px-4 py-3">
+          <i class="fa-solid fa-compass"></i>
+          OBSERVER-CENTRIC 3D SCENE GRAPHS
+        </span>
+
+        <h1 class="title is-1 publication-title mt-5">
+          From Scene-Centric to Observer-Centric:
+
+          <span class="publication-subtitle">
+            Modeling Observer-Aware Relations for 3D Scene Graph Generation
+          </span>
+        </h1>
+
+        <div class="publication-authors">
+
+          <span class="author-block">
+            <a href="#">Jingjun Sun</a><sup>1,*</sup>
+          </span>
+
+          <span class="author-block">
+            <a href="#">Chaowei Wang</a><sup>1,*</sup>
+          </span>
+
+          <span class="author-block">
+            <a href="#">Zhirui Liu</a><sup>2,*</sup>
+          </span>
+
+          <span class="author-block">
+            <a href="#">Jiaxu Tian</a><sup>1</sup>
+          </span>
+
+          <br>
+
+          <span class="author-block">
+            <a href="#">Ming Yang</a><sup>1</sup>
+          </span>
+
+          <span class="author-block">
+            <a href="#">Yaoxing Wang</a><sup>1</sup>
+          </span>
+
+          <span class="author-block">
+            <a href="#">Shan Gao</a><sup>1,†</sup>
+          </span>
+
+          <div class="affiliation-block">
+            <div>
+              <sup>1</sup>
+              Northwestern Polytechnical University,
+              Xi'an, Shaanxi, China
+            </div>
+
+            <div>
+              <sup>2</sup>
+              ShanghaiTech University,
+              Shanghai, China
+            </div>
+          </div>
+
+          <div class="contribution-note">
+            <sup>*</sup> Equal contribution.
+            &nbsp;&nbsp;
+            <sup>†</sup> Corresponding author.
+          </div>
+        </div>
+
+        <!-- 原来的链接全部保留 -->
+        <div class="link-row">
+
+          <a
+            class="button is-dark is-rounded is-medium paper-button"
+            href="assets/pdf/paper.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="icon">
+              <i class="fa-solid fa-file-pdf"></i>
             </span>
-            
-            <h1 class="title is-1 publication-title">
-              Not All Relations Rotate Alike:<br>
-              <span class="is-size-3 has-text-grey">Transformation-Aware Decoupling for Viewpoint-Robust 3D Scene Graph Generation</span>
-            </h1>
-            
-            <div class="is-size-5 publication-authors mt-5">
-              <span class="author-block">
-                <a href="#">Jingjun Sun</a><sup>1,*</sup>
-              </span>
-              <span class="author-block">
-                <a href="#">Chaowei Wang</a><sup>1,*</sup>
-              </span>
-              <span class="author-block">
-                <a href="#">Zhirui Liu</a><sup>2,*</sup>
-              </span>
-              <span class="author-block">
-                <a href="#">Jiaxu Tian</a><sup>1</sup>
-              </span>
-              <br>
-              <span class="author-block">
-                <a href="#">Ming Yang</a><sup>1</sup>
-              </span>
-              <span class="author-block">
-                <a href="#">Yaoxing Wang</a><sup>1</sup>
-              </span>
-              <span class="author-block">
-                <a href="#">Shan Gao</a><sup>1,†</sup>
-              </span>
-            </div>
+            <span>Paper</span>
+          </a>
 
-            <div class="is-size-6 publication-authors mt-3">
-              <span class="author-block"><sup>1</sup>Northwestern Polytechnical University, Xi'an, Shaanxi, China</span><br>
-              <span class="author-block"><sup>2</sup>ShanghaiTech University, Shanghai, China</span>
-            </div>
+          <a
+            class="button is-dark is-rounded is-medium paper-button"
+            href="http://arxiv.org/abs/2606.27412"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="icon">
+              <i class="ai ai-arxiv"></i>
+            </span>
+            <span>arXiv</span>
+          </a>
 
-            <div class="is-size-6 publication-authors mt-2 has-text-grey italic">
-              <span class="author-block"><sup>*</sup>Equal contribution.</span>
-              <span class="author-block"><sup>†</sup>Corresponding author.</span>
-            </div>
+          <a
+            class="button is-dark is-rounded is-medium paper-button"
+            href="https://github.com/Gineven/TAD"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="icon">
+              <i class="fa-brands fa-github"></i>
+            </span>
+            <span>Code</span>
+          </a>
 
-            <div class="column has-text-centered mt-5">
-              <div class="publication-links">
-                <span class="link-block">
-                  <a href="assets/pdf/paper.pdf" class="button is-dark is-rounded is-medium" target="_blank">
-                    <span class="icon"><i class="fas fa-file-pdf"></i></span>
-                    <span>Paper</span>
-                  </a>
-                </span>
-                <span class="link-block">
-                  <a href="http://arxiv.org/abs/2606.27412" class="button is-dark is-rounded is-medium" target="_blank">
-                    <span class="icon"><i class="ai ai-arxiv"></i></span>
-                    <span>arXiv</span>
-                  </a>
-                </span>
-                <span class="link-block">
-                  <a href="https://github.com/Gineven/TAD" class="button is-dark is-rounded is-medium" target="_blank">
-                    <span class="icon"><i class="fab fa-github"></i></span>
-                    <span>Code</span>
-                  </a>
-                </span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="hero teaser mb-6">
-    <div class="container" style="max-width: 1150px;"> 
-      <div class="hero-body has-text-centered">
-        <video class="teaser-video" autoplay muted loop playsinline controls width="100%" poster="assets/figures/hero-poster.jpg">
-          <source src="assets/demos/hero.mp4" type="video/mp4" />
-        </video>
-        <h2 class="subtitle has-text-centered mt-5 has-text-grey" style="max-width: 900px; margin: 0 auto; line-height: 1.6;">
-          Across changing viewpoints, directional relations such as <span class="directional-blue">left, right, front, and behind transform with the observation frame</span>, while viewpoint-invariant relations such as <span class="invariant-black">standing on and attached to remain stable.</span>
-        </h2>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <h2 class="title is-3">🚀 Abstract</h2>
-          <div class="content has-text-justified is-size-6" style="line-height: 1.8;">
-            <p>
-              3D Scene Graph Generation (3DSGG) represents 3D scenes as structured object-relation-object graphs, providing a compact relational abstraction for embodied spatial understanding. In embodied applications, the same scene may be observed from viewpoints that differ by yaw rotations. However, current 3DSGG models often fail to produce relation predictions that follow the expected transformation behavior under such viewpoint shifts. We attribute this limitation to predicate-level transformation heterogeneity: directional predicates such as <i>left</i>, <i>front</i>, <i>right</i>, and <i>behind</i> should transform with the observation frame, whereas most contact, support, and semantic predicates such as <i>standing on</i> and <i>attached to</i> should remain stable. To address this conflict, we propose Transformation-Aware Decoupling (TAD), a viewpoint-robust 3DSGG framework that decouples relation reasoning according to predicate transformation behavior and is supported by viewpoint-stable object representations. TAD decomposes relation reasoning into two parts: one learns cues that should stay stable across viewpoints, while the other learns directional cues that should change with the observation frame. The two parts are then merged for standard multi-label predicate prediction. Transformation-specific descriptors and group-aware auxiliary supervision encourage the two branches to capture complementary relation cues. Extensive experiments on 3DSSG show that TAD achieves state-of-the-art robustness under yaw viewpoint changes without training-time rotation augmentation, while maintaining competitive performance under the standard benchmark.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <h2 class="title is-3">💡 Motivation</h2>
-          <div class="content has-text-justified is-size-6" style="line-height: 1.8;">
-            <p>
-              <strong>Not all relations should respond to rotation in the same way.</strong> 
-              Under yaw viewpoint changes, directional predicates such as left, right, front, and behind should change with the observation frame, whereas most support, contact, and semantic predicates should remain stable.
-            </p>
-          </div>
-          <figure class="image mt-4">
-            <img class="soft-shadow" src="assets/figures/motivation-long.png" alt="Illustration of directional and yaw-invariant predicates under rotation">
-          </figure>
-          <p class="has-text-grey is-size-6 mt-4">
-            TAD addresses the conflict between relation types with different transformation behavior under yaw rotation.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-full">
-          <h2 class="title is-3">⚙️ Method: Transformation-Aware Decoupling</h2>
-          <div class="content has-text-justified is-size-6">
-            <p class="has-text-centered mb-5">
-              TAD combines viewpoint-stable object representations with decoupled relation reasoning for invariant and direction-sensitive predicates.
-            </p>
-          </div>
-          
-          <figure class="image mb-6">
-            <img class="soft-shadow" src="assets/figures/method-long.png" alt="Architecture diagram of Transformation-Aware Decoupling">
-            <p class="has-text-grey is-size-6 mt-4">
-              The framework separates relation reasoning through transformation-specific descriptors, independent branches, and group-aware training objectives.
-            </p>
-          </figure>
-
-          <div class="columns is-centered has-text-left mt-6">
-            <div class="column is-one-third">
-              <div class="method-card">
-                <div class="method-watermark">01</div>
-                <h3 class="title is-5 mb-3">Viewpoint-Stable Objects</h3>
-                <p class="is-size-6 has-text-grey" style="line-height: 1.6;">A rotation-stable object encoder provides reliable object representations for downstream relation reasoning.</p>
-              </div>
-            </div>
-            
-            <div class="column is-one-third">
-              <div class="method-card">
-                <div class="method-watermark">02</div>
-                <h3 class="title is-5 mb-3">Decoupled Relation Branches</h3>
-                <p class="is-size-6 has-text-grey" style="line-height: 1.6;">Invariant and directional predicates are processed with non-shared relation branches instead of one entangled relation space.</p>
-              </div>
-            </div>
-            
-            <div class="column is-one-third">
-              <div class="method-card">
-                <div class="method-watermark">03</div>
-                <h3 class="title is-5 mb-3">Unified Prediction</h3>
-                <p class="is-size-6 has-text-grey" style="line-height: 1.6;">The two relation factors are merged to preserve the original 26-class multi-label predicate prediction setting.</p>
-              </div>
-            </div>
-          </div>
+          <a
+            class="button is-light is-rounded is-medium paper-button"
+            href="#BibTeX"
+          >
+            <span class="icon">
+              <i class="fa-solid fa-quote-right"></i>
+            </span>
+            <span>BibTeX</span>
+          </a>
 
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="section">
-    <div class="container is-max-desktop">
-      <div class="has-text-centered mb-6">
-        <h2 class="title is-3">🎥 Scene Graphs Evolve with Viewpoint</h2>
-        <p class="has-text-grey">
-          Each animation pairs a continuously rotating input scene with the corresponding predicted 3D scene graph throughout the viewpoint change.
+    <!-- =========================
+         Main overview figure
+    ========================== -->
+
+    <section class="section pt-3">
+      <div class="container-wide">
+
+        <figure class="figure-frame hero-figure">
+          <img
+            src="assets/figures/overview.png"
+            alt="A static 3D scene under changing observer frames, contrasting conventional relation modeling with Observer-Aware Relations."
+          >
+        </figure>
+
+        <p class="figure-caption has-text-centered">
+          A physical scene remains unchanged while its local observer frame is
+          reoriented.
+
+          <strong>Observer-Independent (OI)</strong> relations preserve their
+          semantics, whereas
+
+          <strong>Observer-Dependent (OD)</strong> directional relations must
+          be reinterpreted relative to the current observer frame.
         </p>
-      </div>
 
-      <div class="columns is-centered">
-        <div class="column is-half">
-          <div class="box soft-shadow h-100" style="padding: 1.5rem;">
-            <span class="tag is-info is-light mb-3 has-text-weight-bold">Scene 01</span>
-            <h3 class="title is-5 mb-4">Rotating scene and dynamic relation graph</h3>
-            <video class="teaser-video mb-4" autoplay muted loop playsinline controls width="100%" poster="assets/figures/scene-01-poster.jpg">
-              <source src="assets/demos/scene-01.mp4" type="video/mp4" />
-            </video>
-            <p class="is-size-6 has-text-grey">
-              The input 3D scene rotates continuously, while the scene graph below is updated in sync with the current observation frame.
-            </p>
-          </div>
+      </div>
+    </section>
+
+    <!-- =========================
+         Abstract
+    ========================== -->
+
+    <section
+      class="section anchor-offset"
+      id="abstract"
+    >
+      <div class="container is-max-desktop">
+
+        <div class="has-text-centered mb-5">
+          <p class="section-kicker">Overview</p>
+          <h2 class="title is-3 section-heading">
+            Abstract
+          </h2>
         </div>
 
-        <div class="column is-half">
-          <div class="box soft-shadow h-100" style="padding: 1.5rem;">
-            <span class="tag is-info is-light mb-3 has-text-weight-bold">Scene 02</span>
-            <h3 class="title is-5 mb-4">Continuous rotation in a second scene</h3>
-            <video class="teaser-video mb-4" autoplay muted loop playsinline controls width="100%" poster="assets/figures/scene-02-poster.jpg">
-              <source src="assets/demos/scene-02.mp4" type="video/mp4" />
-            </video>
-            <p class="is-size-6 has-text-grey">
-              A second rotating scene with its graph prediction shown throughout the motion, illustrating the viewpoint-dependent evolution of relation edges.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+        <div class="content lead-copy has-text-justified">
+          <p>
+            3D Scene Graph Generation (3DSGG) represents 3D scenes as
+            structured object-relation-object graphs for spatial
+            understanding. In observer-centric spatial perception, the same
+            physical scene may be expressed under different local observer
+            frames while its underlying structure remains unchanged.
 
-  <section class="section">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered mb-6">
-        <div class="column is-full">
-          <h2 class="title is-3">📊 Experiments</h2>
-          <p class="is-size-5 has-text-grey">Strong canonical performance, stable rotated-view predictions.</p>
-        </div>
-      </div>
+            However, existing models are typically developed under a fixed
+            scene-aligned reference frame and may produce semantically
+            inconsistent predictions when the same scene is re-expressed in a
+            different observer frame.
 
-      <div class="columns is-vcentered mb-6">
-        <div class="column is-7">
-          <div class="box has-background-link has-text-white soft-shadow" style="padding: 2.5rem; border: none;">
-            <p class="is-size-7 has-text-weight-bold is-uppercase mb-3" style="letter-spacing: 1.5px; opacity: 0.8;">Main takeaway</p>
-            <h3 class="title is-3 has-text-white" style="line-height: 1.4;">TAD reduces the 0° → 90° Overall R@50 drop to only 1.5 points.</h3>
-            <p class="is-size-6 mt-4" style="opacity: 0.9;">
-              The model maintains high directional and invariant relation accuracy when the observation frame undergoes the challenging 90° axis exchange.
-            </p>
-          </div>
-        </div>
-        <div class="column is-5">
-          <div class="columns is-multiline">
-            <div class="column is-12 py-2">
-              <div class="box soft-shadow is-flex is-align-items-center is-justify-content-space-between m-0">
-                <div><p class="metric-label">Overall R@50</p><p class="metric-value">86.0 → 84.5</p></div>
-                <span class="tag is-success is-light is-medium has-text-weight-bold px-3 py-2">−1.5 @ 90°</span>
-              </div>
-            </div>
-            <div class="column is-12 py-2">
-              <div class="box soft-shadow is-flex is-align-items-center is-justify-content-space-between m-0">
-                <div><p class="metric-label">Directional mR@50</p><p class="metric-value">87.9 → 86.8</p></div>
-                <span class="tag is-success is-light is-medium has-text-weight-bold px-3 py-2">−1.1 @ 90°</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+            We attribute this failure to the heterogeneous frame dependency of
+            relational predicates. Directional predicates such as
+            <em>left</em>, <em>front</em>, <em>right</em>, and
+            <em>behind</em> are Observer-Dependent Relations, whereas most
+            contact, support, and semantic predicates, such as
+            <em>standing on</em> and <em>attached to</em>, are approximately
+            Observer-Independent Relations.
 
-      <h3 class="title is-4 mt-6 has-text-centered">Main rotated-view robustness</h3>
-      
-      <figure class="image mt-5 mb-6 has-text-centered">
-        <img class="soft-shadow" src="assets/figures/results-table.png" alt="Radar chart" style="max-width: 900px; width: 100%; margin: 0 auto; display: block;">
-      </figure>
+            Conventional models do not distinguish these frame responses,
+            leading to degraded relation prediction under observer-frame
+            reorientation.
 
-      <div class="table-container soft-shadow">
-        <table class="table is-striped is-hoverable is-fullwidth has-text-centered mb-0">
-          <thead>
-            <tr class="has-background-white-ter">
-              <th class="has-text-left py-4 px-5">Method</th>
-              <th class="has-text-centered py-4">0° Overall R@50</th>
-              <th class="has-text-centered py-4">90° Overall R@50</th>
-              <th class="has-text-centered py-4">0° → 90° Change</th>
-              <th class="has-text-centered py-4">90° Directional mR@50</th>
-              <th class="has-text-centered py-4">90° Invariant mR@50</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="has-text-left px-5">VL-SAT</td>
-              <td>79.9</td><td>68.2</td><td class="has-text-danger has-text-weight-bold">−11.7</td><td>67.8</td><td>51.1</td>
-            </tr>
-            <tr>
-              <td class="has-text-left px-5">OCRL</td>
-              <td>82.0</td><td>69.9</td><td class="has-text-danger has-text-weight-bold">−12.1</td><td>67.4</td><td>53.1</td>
-            </tr>
-            <tr class="has-background-success-light">
-              <td class="has-text-left has-text-weight-bold px-5">TAD (Ours)</td>
-              <td class="has-text-weight-bold">86.0</td><td class="has-text-weight-bold">84.5</td><td class="has-text-success has-text-weight-bold">−1.5</td><td class="has-text-weight-bold">86.8</td><td class="has-text-weight-bold">63.3</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+            To address this issue, we introduce Observer-Aware Relations
+            (OAR), which combines observer-aware geometric encoding and
+            relation specialization, supported by frame-stable object
+            encoding, for unified multi-label predicate prediction.
 
-      <h3 class="title is-4 mt-6 pt-5 has-text-centered">Ablation: where the robustness comes from</h3>
-      <div class="table-container soft-shadow mt-5">
-        <table class="table is-striped is-hoverable is-fullwidth has-text-centered mb-0">
-          <thead>
-            <tr class="has-background-white-ter">
-              <th class="has-text-left py-4 px-5">Configuration</th>
-              <th class="has-text-centered py-4">Triplet R@50</th>
-              <th class="has-text-centered py-4">SGCls mR@50</th>
-              <th class="has-text-centered py-4">PredCls R@50</th>
-              <th class="has-text-centered py-4">PredCls mR@50</th>
-              <th class="has-text-centered py-4">90° R@50</th>
-              <th class="has-text-centered py-4">90° mR@50</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td class="has-text-left px-5">Baseline</td><td>89.83</td><td>23.6</td><td>79.2</td><td>57.8</td><td>59.8</td><td>36.48</td></tr>
-            <tr><td class="has-text-left px-5">+ VSOE</td><td>90.37</td><td>32.1</td><td>83.6</td><td>63.6</td><td>68.4</td><td>51.5</td></tr>
-            <tr><td class="has-text-left px-5">+ VSOE + TAD</td><td>90.95</td><td>33.1</td><td>85.0</td><td>64.3</td><td>83.3</td><td>62.7</td></tr>
-            <tr class="has-background-success-light">
-              <td class="has-text-left has-text-weight-bold px-5">+ VSOE + TAD + TSD (Ours)</td>
-              <td class="has-text-weight-bold">91.03</td><td class="has-text-weight-bold">34.6</td><td class="has-text-weight-bold">86.0</td><td class="has-text-weight-bold">66.7</td><td class="has-text-weight-bold">84.5</td><td class="has-text-weight-bold">66.9</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-    </div>
-  </section>
-
-  <section class="section pt-0" id="BibTeX">
-    <div class="container is-max-desktop content">
-      <h2 class="title">🔗 BibTeX</h2>
-      <pre class="soft-shadow"><code>@misc{tad_3dsgg_2026,
-  title  = {Not All Relations Rotate Alike: Transformation-Aware Decoupling for Viewpoint-Robust 3D Scene Graph Generation},
-  author = {Sun, Jingjun and Wang, Chaowei and Liu, Zhirui and Tian, Jiaxu and Yang, Ming and Wang, Yaoxing and Gao, Shan},
-  year   = {2026},
-  note   = {Under review}
-}</code></pre>
-    </div>
-  </section>
-
-  <footer class="footer mt-6 pb-6">
-    <div class="container">
-      <div class="columns is-centered">
-        <div class="column is-8 has-text-centered">
-          <p class="has-text-grey">
-            This website template is inspired by <a href="https://github.com/nerfies/nerfies.github.io" target="_blank" class="has-text-info">Nerfies</a> and <a href="https://openfungraph.github.io/" target="_blank" class="has-text-info">OpenFunGraph</a>. 
-            <br>© 2026 TAD Project Page.
+            Experiments on 3DSSG show that OAR consistently outperforms
+            baselines across controlled observer-frame reorientations without
+            training-time frame-reorientation augmentation, while remaining
+            competitive on the standard benchmark.
           </p>
         </div>
+
       </div>
+    </section>
+
+    <!-- =========================
+         Motivation
+    ========================== -->
+
+    <section
+      class="section anchor-offset"
+      id="motivation"
+    >
+      <div class="container is-max-desktop">
+
+        <div class="has-text-centered mb-6">
+          <p class="section-kicker">
+            Core distinction
+          </p>
+
+          <h2 class="title is-3 section-heading">
+            Relations Respond Differently to the Observer Frame
+          </h2>
+
+          <p class="has-text-grey">
+            OAR explicitly separates semantic preservation from
+            frame-relative reinterpretation.
+          </p>
+        </div>
+
+        <div class="columns is-variable is-5 mb-6">
+
+          <div class="column">
+            <article class="soft-card concept-card is-oi">
+
+              <span class="concept-label">
+                <i class="fa-solid fa-lock"></i>
+                Observer-Independent
+              </span>
+
+              <h3 class="title is-5 mb-3">
+                Preserve semantics
+              </h3>
+
+              <p
+                class="has-text-grey"
+                style="line-height: 1.7;"
+              >
+                Contact, support, and semantic relations such as
+                <em>standing on</em> and <em>attached to</em> should remain
+                unchanged when the local observer frame is reoriented.
+              </p>
+
+            </article>
+          </div>
+
+          <div class="column">
+            <article class="soft-card concept-card is-od">
+
+              <span class="concept-label">
+                <i class="fa-solid fa-arrows-rotate"></i>
+                Observer-Dependent
+              </span>
+
+              <h3 class="title is-5 mb-3">
+                Reinterpret semantics
+              </h3>
+
+              <p
+                class="has-text-grey"
+                style="line-height: 1.7;"
+              >
+                Directional relations such as <em>left</em>,
+                <em>front</em>, <em>right</em>, and <em>behind</em>
+                follow a deterministic label permutation under cardinal
+                observer-frame reorientation.
+              </p>
+
+            </article>
+          </div>
+
+        </div>
+
+        <div class="columns is-vcentered is-variable is-6">
+
+          <div class="column is-5">
+            <figure class="figure-frame">
+              <img
+                src="assets/figures/observer-reorientation.png"
+                alt="Cross-axis reinterpretation at 90 degrees and within-axis reversal at 180 degrees."
+              >
+            </figure>
+          </div>
+
+          <div class="column is-7">
+            <div class="content lead-copy">
+
+              <h3 class="title is-4">
+                Why 90° is harder than 180°
+              </h3>
+
+              <p>
+                A 180° reorientation performs a within-axis reversal:
+                <em>left ↔ right</em> and
+                <em>front ↔ behind</em>.
+              </p>
+
+              <p>
+                In contrast, 90° and 270° reorientations exchange the
+                horizontal axes and therefore require cross-axis
+                reinterpretation.
+              </p>
+
+              <p>
+                This diagnostic hierarchy explains why conventional shared
+                relation encoders can remain stable at 180° yet degrade
+                sharply at 90° and 270°.
+              </p>
+
+              <p>
+                OAR models these heterogeneous frame responses directly
+                rather than relying on output correction or fourfold rotation
+                augmentation.
+              </p>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================
+         Method
+    ========================== -->
+
+    <section
+      class="section anchor-offset"
+      id="method"
+    >
+      <div class="container-wide">
+
+        <div class="has-text-centered mb-6">
+
+          <p class="section-kicker">
+            Architecture
+          </p>
+
+          <h2 class="title is-3 section-heading">
+            Observer-Aware Relations (OAR)
+          </h2>
+
+          <p class="has-text-grey">
+            Frame-stable object representations support specialized OI and OD
+            relation reasoning, followed by unified multi-label predicate
+            prediction.
+          </p>
+
+        </div>
+
+        <figure class="figure-frame mb-6">
+          <img
+            src="assets/figures/method-overview.png"
+            alt="Architecture of OAR with a Frame-Stable Object Encoder, observer-aware geometric encoding, specialized relation pathways, and a unified predicate head."
+          >
+        </figure>
+
+        <div class="columns is-multiline is-variable is-4">
+
+          <div class="column is-half-tablet is-one-quarter-desktop">
+            <article
+              class="method-card"
+              data-step="01"
+            >
+              <span class="method-chip">
+                FSOE
+              </span>
+
+              <h3 class="title is-5 mb-3">
+                Frame-Stable Objects
+              </h3>
+
+              <p>
+                A pretrained RI-MAE encoder extracts rotation-stable object
+                features. A node-context GNN then produces scene-aware object
+                representations.
+              </p>
+            </article>
+          </div>
+
+          <div class="column is-half-tablet is-one-quarter-desktop">
+            <article
+              class="method-card"
+              data-step="02"
+            >
+              <span class="method-chip">
+                OAGE
+              </span>
+
+              <h3 class="title is-5 mb-3">
+                Observer-Aware Geometry
+              </h3>
+
+              <p>
+                The OD descriptor retains signed offsets and angular cues,
+                while the OI descriptor suppresses signed horizontal
+                orientation and emphasizes distances, scales, and structural
+                statistics.
+              </p>
+            </article>
+          </div>
+
+          <div class="column is-half-tablet is-one-quarter-desktop">
+            <article
+              class="method-card"
+              data-step="03"
+            >
+              <span class="method-chip">
+                SPECIALIZATION
+              </span>
+
+              <h3 class="title is-5 mb-3">
+                Non-Shared Reasoning
+              </h3>
+
+              <p>
+                Two relation GNNs specialize OI and OD cues. Auxiliary pathway
+                heads and an orthogonality regularizer encourage complementary
+                representations.
+              </p>
+            </article>
+          </div>
+
+          <div class="column is-half-tablet is-one-quarter-desktop">
+            <article
+              class="method-card"
+              data-step="04"
+            >
+              <span class="method-chip">
+                UNIFIED HEAD
+              </span>
+
+              <h3 class="title is-5 mb-3">
+                Unified Prediction
+              </h3>
+
+              <p>
+                The specialized pathway features are merged only before the
+                final classifier, preserving the original 26-class
+                multi-label predicate space.
+              </p>
+            </article>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================
+         Results
+    ========================== -->
+
+    <section
+      class="section anchor-offset"
+      id="results"
+    >
+      <div class="container-wide">
+
+        <div class="has-text-centered mb-6">
+
+          <p class="section-kicker">
+            Evaluation
+          </p>
+
+          <h2 class="title is-3 section-heading">
+            Robust Across Observer Frames
+          </h2>
+
+          <p class="has-text-grey">
+            OAR is trained without frame-reorientation augmentation and
+            evaluated under controlled 0°, 90°, 180°, and 270° observer
+            frames.
+          </p>
+
+        </div>
+
+        <div class="columns is-vcentered is-variable is-5 mb-6">
+
+          <div class="column is-7">
+
+            <article class="takeaway-card">
+
+              <p class="eyebrow">
+                Main takeaway
+              </p>
+
+              <h3
+                class="title is-3 has-text-white"
+                style="line-height: 1.35;"
+              >
+                OAR limits the 0° → 90° Overall R@50 drop to 1.5 points.
+              </h3>
+
+              <p
+                class="mt-4"
+                style="line-height: 1.75; opacity: 0.92;"
+              >
+                At the challenging cross-axis reorientation, OAR reaches
+                <strong>84.5 Overall R@50</strong>, outperforming the
+                strongest frame-augmented baseline by
+                <strong>8.5 points</strong>.
+              </p>
+
+            </article>
+
+          </div>
+
+          <div class="column is-5">
+
+            <div class="metric-card">
+              <div>
+                <p class="metric-label">
+                  Overall R@50
+                </p>
+
+                <p class="metric-value">
+                  86.0 → 84.5
+                </p>
+              </div>
+
+              <span class="tag metric-delta px-3 py-2">
+                −1.5 @ 90°
+              </span>
+            </div>
+
+            <div class="metric-card">
+              <div>
+                <p class="metric-label">
+                  OD mR@50
+                </p>
+
+                <p class="metric-value">
+                  87.9 → 86.8
+                </p>
+              </div>
+
+              <span class="tag metric-delta px-3 py-2">
+                −1.1 @ 90°
+              </span>
+            </div>
+
+            <div class="metric-card">
+              <div>
+                <p class="metric-label">
+                  OI mR@50
+                </p>
+
+                <p class="metric-value">
+                  62.8 → 63.3
+                </p>
+              </div>
+
+              <span class="tag metric-delta px-3 py-2">
+                +0.5 @ 90°
+              </span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Cardinal results -->
+
+        <h3 class="title is-4 has-text-centered mb-5">
+          Cardinal observer-frame reorientation
+        </h3>
+
+        <div class="table-frame mb-6">
+          <div class="table-container">
+
+            <table
+              class="table is-striped is-hoverable is-fullwidth has-text-centered"
+            >
+              <thead>
+                <tr>
+                  <th class="has-text-left px-5">
+                    Method
+                  </th>
+
+                  <th>
+                    0° Overall R@50
+                  </th>
+
+                  <th>
+                    90° Overall R@50
+                  </th>
+
+                  <th>
+                    Δ90°
+                  </th>
+
+                  <th>
+                    90° OD mR@50
+                  </th>
+
+                  <th>
+                    90° OI mR@50
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                <tr>
+                  <td class="has-text-left px-5">
+                    VL-SAT
+                  </td>
+                  <td>79.9</td>
+                  <td>68.2</td>
+                  <td class="delta-bad">−11.7</td>
+                  <td>67.8</td>
+                  <td>51.1</td>
+                </tr>
+
+                <tr>
+                  <td class="has-text-left px-5">
+                    VL-SAT + RI-MAE
+                  </td>
+                  <td>81.9</td>
+                  <td>71.0</td>
+                  <td class="delta-bad">−10.9</td>
+                  <td>70.3</td>
+                  <td>54.7</td>
+                </tr>
+
+                <tr>
+                  <td class="has-text-left px-5">
+                    OCRL
+                  </td>
+                  <td>82.0</td>
+                  <td>69.9</td>
+                  <td class="delta-bad">−12.1</td>
+                  <td>67.4</td>
+                  <td>53.1</td>
+                </tr>
+
+                <tr>
+                  <td class="has-text-left px-5">
+                    OCRL (aug)
+                  </td>
+                  <td>76.8</td>
+                  <td>76.0</td>
+                  <td>−0.8</td>
+                  <td>78.0</td>
+                  <td>57.7</td>
+                </tr>
+
+                <tr class="ours-row">
+                  <td class="has-text-left has-text-weight-bold px-5">
+                    OAR (Ours)
+                  </td>
+
+                  <td class="has-text-weight-bold">
+                    86.0
+                  </td>
+
+                  <td class="has-text-weight-bold">
+                    84.5
+                  </td>
+
+                  <td class="delta-good">
+                    −1.5
+                  </td>
+
+                  <td class="has-text-weight-bold">
+                    86.8
+                  </td>
+
+                  <td class="has-text-weight-bold">
+                    63.3
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+
+          </div>
+        </div>
+
+        <!-- Standard benchmark -->
+
+        <h3 class="title is-4 has-text-centered mb-5">
+          Standard 3DSSG benchmark
+        </h3>
+
+        <div class="table-frame mb-6">
+          <div class="table-container">
+
+            <table
+              class="table is-striped is-hoverable is-fullwidth has-text-centered"
+            >
+              <thead>
+                <tr>
+                  <th class="has-text-left px-5">
+                    Method
+                  </th>
+
+                  <th>
+                    SGCls R@20/50/100
+                  </th>
+
+                  <th>
+                    SGCls mR@20/50/100
+                  </th>
+
+                  <th>
+                    PredCls R@20/50/100
+                  </th>
+
+                  <th>
+                    PredCls mR@20/50/100
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                <tr>
+                  <td class="has-text-left px-5">
+                    VL-SAT
+                  </td>
+                  <td>32.0 / 33.5 / 33.7</td>
+                  <td>31.0 / 32.6 / 32.7</td>
+                  <td>67.8 / 79.9 / 80.8</td>
+                  <td>57.8 / 64.2 / 64.3</td>
+                </tr>
+
+                <tr>
+                  <td class="has-text-left px-5">
+                    OCRL
+                  </td>
+                  <td>36.1 / 37.7 / 37.8</td>
+                  <td>29.8 / 32.0 / 32.1</td>
+                  <td>70.2 / 82.0 / 82.6</td>
+                  <td>57.1 / 64.6 / 64.8</td>
+                </tr>
+
+                <tr class="ours-row">
+                  <td class="has-text-left has-text-weight-bold px-5">
+                    OAR (Ours)
+                  </td>
+
+                  <td class="has-text-weight-bold">
+                    36.4 / 38.1 / 38.3
+                  </td>
+
+                  <td class="has-text-weight-bold">
+                    32.0 / 34.6 / 34.7
+                  </td>
+
+                  <td class="has-text-weight-bold">
+                    73.1 / 86.0 / 86.4
+                  </td>
+
+                  <td class="has-text-weight-bold">
+                    58.8 / 66.7 / 67.1
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+
+          </div>
+        </div>
+
+        <!-- Qualitative figure -->
+
+        <h3 class="title is-4 has-text-centered mb-5">
+          Qualitative comparison
+        </h3>
+
+        <figure class="figure-frame mb-6">
+          <img
+            src="assets/figures/qualitative.png"
+            alt="Qualitative comparison of VL-SAT, OAR, and ground truth under 0, 90, and 180 degree observer frames."
+          >
+        </figure>
+
+        <p class="figure-caption has-text-centered mb-6">
+          VL-SAT becomes inconsistent under the 90° cross-axis
+          reorientation. OAR better follows the expected OD predicate
+          re-indexing while preserving OI relations such as
+          <em>standing on</em> and <em>attached to</em>.
+        </p>
+
+        <!-- Ablation -->
+
+        <h3 class="title is-4 has-text-centered mb-5">
+          Component ablation
+        </h3>
+
+        <div class="table-frame">
+          <div class="table-container">
+
+            <table
+              class="table is-striped is-hoverable is-fullwidth has-text-centered"
+            >
+              <thead>
+                <tr>
+                  <th class="has-text-left px-5">
+                    Configuration
+                  </th>
+
+                  <th>
+                    Triplet R@50
+                  </th>
+
+                  <th>
+                    Triplet mR@50
+                  </th>
+
+                  <th>
+                    SGCls R@50
+                  </th>
+
+                  <th>
+                    SGCls mR@50
+                  </th>
+
+                  <th>
+                    PredCls R@50
+                  </th>
+
+                  <th>
+                    PredCls mR@50
+                  </th>
+
+                  <th>
+                    90° R@50
+                  </th>
+
+                  <th>
+                    90° mR@50
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                <tr>
+                  <td class="has-text-left px-5">
+                    Baseline
+                  </td>
+                  <td>89.83</td>
+                  <td>60.37</td>
+                  <td>31.5</td>
+                  <td>23.6</td>
+                  <td>79.2</td>
+                  <td>57.8</td>
+                  <td>59.8</td>
+                  <td>46.4</td>
+                </tr>
+
+                <tr>
+                  <td class="has-text-left px-5">
+                    + FSOE
+                  </td>
+                  <td>90.37</td>
+                  <td>62.59</td>
+                  <td>36.7</td>
+                  <td>32.1</td>
+                  <td>83.6</td>
+                  <td>63.6</td>
+                  <td>68.4</td>
+                  <td>51.5</td>
+                </tr>
+
+                <tr>
+                  <td class="has-text-left px-5">
+                    + FSOE + Spec.
+                  </td>
+                  <td>90.95</td>
+                  <td>67.39</td>
+                  <td>37.3</td>
+                  <td>33.8</td>
+                  <td>85.0</td>
+                  <td>64.3</td>
+                  <td>83.3</td>
+                  <td>62.7</td>
+                </tr>
+
+                <tr>
+                  <td class="has-text-left px-5">
+                    + Spec. + OAGE
+                  </td>
+                  <td>89.64</td>
+                  <td>62.41</td>
+                  <td>33.2</td>
+                  <td>28.6</td>
+                  <td>80.8</td>
+                  <td>62.6</td>
+                  <td>78.4</td>
+                  <td>61.2</td>
+                </tr>
+
+                <tr class="ours-row">
+                  <td class="has-text-left has-text-weight-bold px-5">
+                    + FSOE + Spec. + OAGE (Ours)
+                  </td>
+
+                  <td class="has-text-weight-bold">
+                    91.03
+                  </td>
+
+                  <td class="has-text-weight-bold">
+                    69.85
+                  </td>
+
+                  <td class="has-text-weight-bold">
+                    38.1
+                  </td>
+
+                  <td class="has-text-weight-bold">
+                    34.6
+                  </td>
+
+                  <td class="has-text-weight-bold">
+                    86.0
+                  </td>
+
+                  <td class="has-text-weight-bold">
+                    66.7
+                  </td>
+
+                  <td class="has-text-weight-bold">
+                    84.5
+                  </td>
+
+                  <td class="has-text-weight-bold">
+                    66.9
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =========================
+         BibTeX
+    ========================== -->
+
+    <section
+      class="section anchor-offset"
+      id="BibTeX"
+    >
+      <div class="container is-max-desktop">
+
+        <div class="mb-4">
+
+          <button
+            class="button is-small is-light is-rounded copy-button"
+            type="button"
+            onclick="copyBibtex(this)"
+          >
+            <span class="icon">
+              <i class="fa-regular fa-copy"></i>
+            </span>
+            <span>Copy</span>
+          </button>
+
+          <p class="section-kicker">
+            Citation
+          </p>
+
+          <h2 class="title is-3 section-heading">
+            BibTeX
+          </h2>
+
+        </div>
+
+        <pre class="code-card"><code id="bibtex">@misc{oar3dsgg2026,
+  title  = {From Scene-Centric to Observer-Centric:
+            Modeling Observer-Aware Relations for 3D Scene Graph Generation},
+  author = {Jingjun Sun and Chaowei Wang and Zhirui Liu and Jiaxu Tian and Ming Yang and Yaoxing Wang and Shan Gao},
+  year   = {2026}
+}</code></pre>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================
+       Footer
+  ========================== -->
+
+  <footer class="footer py-6">
+    <div class="container is-max-desktop has-text-centered">
+
+      <p class="has-text-grey">
+        © 2026 OAR Project Page.
+        Website layout adapted from common academic project-page conventions.
+      </p>
+
     </div>
   </footer>
+
+  <script>
+    async function copyBibtex(button) {
+      const text = document.getElementById("bibtex").innerText;
+      const label = button.querySelector("span:last-child");
+
+      try {
+        await navigator.clipboard.writeText(text);
+
+        label.textContent = "Copied";
+
+        setTimeout(() => {
+          label.textContent = "Copy";
+        }, 1600);
+      } catch (error) {
+        label.textContent = "Select manually";
+      }
+    }
+  </script>
 
 </body>
 </html>
